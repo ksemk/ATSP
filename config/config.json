@@ -1,0 +1,5 @@
+{
+    "configurations": {
+        "inputFilePath": "ATSP-BranchBound-DynamicProgramming/data/input.txt",
+        "outputFilePath": "ATSP-BranchBound-DynamicProgramming/results/results.csv"}
+}

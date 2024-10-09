@@ -1,0 +1,11 @@
+# Ignore build files
+/build/
+*.o
+*.exe
+
+# Ignore compiled Python files
+*.pyc
+__pycache__/
+
+# Ignore result/output files
+/results/
