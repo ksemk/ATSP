@@ -4,3 +4,50 @@ __pycache__/
 
 # Ignore result/output files
 /results/
+
+/build/
+
+# Ignore compiled object files
+*.o
+*.obj
+
+# Ignore compiled binary files
+*.exe
+*.out
+*.dll
+*.so
+*.dylib
+
+# Ignore CMake-generated files
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Ignore logs and temporary files
+*.log
+*.tmp
+
+# Ignore Visual Studio Code settings folder
+.vscode/
+
+# Ignore macOS system files
+.DS_Store
+
+# Ignore Windows system files
+Thumbs.db
+
+# Ignore Linux temporary files
+*~
+
+# Ignore Python virtual environment
+venv/
+
+# Ignore JetBrains IDE settings
+.idea/
+
+# Ignore Vim swap files
+*.swp
+*.swo
+
+raport/
