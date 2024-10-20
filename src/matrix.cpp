@@ -4,6 +4,7 @@
 #include <sstream>
 #include <stdexcept>
 #include <iomanip>
+#include <random> // Include the random library
 
 class Matrix {
 private:
@@ -52,6 +53,33 @@ public:
             for (int j = 0; j < size; ++j) {
                 if (!(file >> data[i][j])) {
                     throw std::runtime_error("Error reading matrix data");
+                }
+            }
+        }
+    }
+
+    // Function to generate a random matrix with a given size and range
+    void generateRandomMatrix(int s, int minValue, int maxValue) {
+        if (s < 3 || s > 19) {
+            throw std::invalid_argument("Size must be between 3 and 19");
+        }
+        if (minValue < 1 || maxValue > 9999 || minValue > maxValue) {
+            throw std::invalid_argument("Values must be between 1 and 9999, and minValue must be less than or equal to maxValue");
+        }
+
+        size = s;
+        data.resize(size, std::vector<int>(size, 0));
+
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        std::uniform_int_distribution<> dis(minValue, maxValue);
+
+        for (int i = 0; i < size; ++i) {
+            for (int j = 0; j < size; ++j) {
+                if (i == j) {
+                    data[i][j] = 9999; // No connection to itself
+                } else {
+                    data[i][j] = dis(gen);
                 }
             }
         }
