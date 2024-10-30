@@ -6,12 +6,6 @@
 #include <iomanip>
 #include <random> // Include the random library
 
-class Matrix {
-private:
-    int size;
-    std::vector<std::vector<int>> data;
-
-public:
     // Constructor to initialize the matrix with a given size
     Matrix(int s) : size(s) {
         data.resize(size, std::vector<int>(size, 0)); // Initialize with 0s
