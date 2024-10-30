@@ -1,19 +1,42 @@
-#include "../include/experiment.h"
-#include "../include/Algorithms/DynamicProgramming.h"
-#include "../include/Algorithms/BranchAndBound.h"
-#include "../include/ATSP.h"
-#include "matrix.cpp"
+#include "main.h"
 
 int main() {
     Matrix mat(0); // Initialize with size 0, as it will be set from the file
 
+    // Read the config file
+    std::ifstream config_file("../config/config.json");
+    if (!config_file.is_open()) {
+        std::cerr << "Error: Could not open config file." << std::endl;
+        return 1;
+    }
+
+    // Parse the config file as JSON
+    nlohmann::json config_json;
+    config_file >> config_json;
+
     try {
-        // mat.readFromFile("../data/TSPLib_ATSP/br17.atsp");
-        // std::cout << "Matrix loaded from file:" << std::endl;
-        mat.generateRandomMatrix(5, 1, 10);
+        // Extract the input path from the JSON object
+        std::string input_path = "../" + config_json.at("configurations").at("inputFilePath").get<std::string>();
+
+        mat.readFromFile(input_path);
+        std::string file_name = input_path.substr(input_path.find_last_of("/\\") + 1);
+        std::cout << "Matrix loaded from file: " << file_name << std::endl;
         mat.display();
+        // Generate a random matrix for testing (you can remove this if unnecessary)
+        int size = config_json.at("configurations").at("matrixGeneration").at("size").get<int>();
+        int minValue = config_json.at("configurations").at("matrixGeneration").at("minValue").get<int>();
+        int maxValue = config_json.at("configurations").at("matrixGeneration").at("maxValue").get<int>();
+        int symmetricity = config_json.at("configurations").at("matrixGeneration").at("symmetricity").get<int>();
+        int asymRangeMin = config_json.at("configurations").at("matrixGeneration").at("asymRangeMin").get<int>();
+        int asymRangeMax = config_json.at("configurations").at("matrixGeneration").at("asymRangeMax").get<int>();
+
+        mat.generateRandomMatrix(size, minValue, maxValue, symmetricity, asymRangeMin, asymRangeMax);
+        std::cout << "Random matrix generated:" << std::endl;
+        mat.display();
+
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
     }
+
     return 0;
 }

@@ -1,5 +1,14 @@
 {
     "configurations": {
-        "inputFilePath": "ATSP-BranchBound-DynamicProgramming/data/input.txt",
-        "outputFilePath": "ATSP-BranchBound-DynamicProgramming/results/results.csv"}
+        "inputFilePath": "data/TSPLib_ATSP/br17.atsp",
+        "outputFilePath": "results/results.csv",
+        "matrixGeneration": {
+            "size": 8,
+            "minValue": 1,
+            "maxValue": 100,
+            "symmetricity": 50,
+            "asymRangeMin": -5,
+            "asymRangeMax": 5
+        }
+    }
 }
