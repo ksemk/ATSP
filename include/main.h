@@ -6,7 +6,7 @@
 #include "Algorithms/BranchAndBound.h"
 #include "ATSP.h"
 #include "matrix.h"
-#include <../include/nlohmann/json.hpp>
+#include <../include/lib/nlohmann/json.hpp>
 #include <fstream>
 #include <iostream>
 #include <string>

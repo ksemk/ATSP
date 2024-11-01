@@ -1,5 +1,5 @@
 #include "matrix.h"
-
+#define INF 9999  // Define infinity as 9999
 // Constructor to initialize the matrix with a given size
 Matrix::Matrix(int s) : size(s) {
     data.resize(size, std::vector<int>(size, 0)); // Initialize with 0s
@@ -77,7 +77,7 @@ void Matrix::generateRandomMatrix(int s, int minValue, int maxValue, int symmetr
             data[i][j] = randomValue;
             data[j][i] = randomValue; // Make it symmetric
         }
-        data[i][i] = 9999; // No connection to itself
+        data[i][i] = INF; // No connection to itself
     }
 
     // If symmetricity is less than 100, introduce asymmetry

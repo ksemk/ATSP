@@ -3,13 +3,24 @@
 
 #include <vector>
 #include <iostream>
+#include "../matrix.h"
+
 
 class BranchAndBound {
+private:
+    const Matrix& matrix;  // Reference to the matrix initialized in main
+    int bestCost;
+    std::vector<int> bestPath;
+    
+
 public:
-    // Add public methods and members here
+    BranchAndBound(const Matrix& matrix);
+    void runBranchAndBound();
+    void printSolution() const;
 
 private:
-    // Add private methods and members here
+    int calculateLowerBound(Node& node) const;
+    // Add any other necessary helper functions here
 };
 
 #endif // BRANCHANDBOUND_H

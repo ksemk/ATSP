@@ -1,6 +1,6 @@
 {
     "configurations": {
-        "inputFilePath": "data/TSPLib_ATSP/br17.atsp",
+        "inputFilePath": "data/TSPLib_ATSP/test_matrix",
         "outputFilePath": "results/results.csv",
         "matrixGeneration": {
             "size": 8,
