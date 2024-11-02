@@ -5,15 +5,13 @@
 #include <string>
 #include <iostream>
 
-using namespace std;
-
 
 
 class ATSP {
 public:
     
 private:
-    static void readDataFromFile(string filename);
+    static void readDataFromFile(std::string filename);
 };
 
 #endif // ATSP_H

@@ -34,6 +34,8 @@ public:
     // Function to clear the memory used by the matrix
     void clear();
 
+    const std::vector<std::vector<int>>& getData() const;
+
 };
 
 #endif // MATRIX_H

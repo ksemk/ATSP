@@ -112,4 +112,10 @@ int Matrix::getSize() const {
 void Matrix::clear() {
     size = 0;
     data.clear(); // Clear the vector, releasing the memory
+
+    }
+
+// Getter for matrix data
+const std::vector<std::vector<int>>& Matrix::getData() const {
+    return data;
 }

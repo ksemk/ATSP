@@ -1,7 +1,7 @@
 #include "../include/ATSP.h"
 
 
-void ATSP::readDataFromFile(string filename){
-    cout << "Reading data from file: " << filename << endl;
+void ATSP::readDataFromFile(std::string filename){
+    std::cout << "Reading data from file: " << filename << std::endl;
     
 }

@@ -1,7 +1,6 @@
 #include "main.h"
 
 int main() {
-    Matrix mat(0); // Initialize with size 0, as it will be set from the file
 
     // Read the config file
     std::ifstream config_file("../config/config.json");
@@ -18,7 +17,9 @@ int main() {
         // Extract the input path from the JSON object
         std::string input_path = "../" + config_json.at("configurations").at("inputFilePath").get<std::string>();
 
+        Matrix mat(0); // Initialize with size 0, as it will be set from the file
         mat.readFromFile(input_path);
+
         std::string file_name = input_path.substr(input_path.find_last_of("/\\") + 1);
         std::cout << "Matrix loaded from file: " << file_name << std::endl;
         mat.display();
@@ -30,13 +31,21 @@ int main() {
         int asymRangeMin = config_json.at("configurations").at("matrixGeneration").at("asymRangeMin").get<int>();
         int asymRangeMax = config_json.at("configurations").at("matrixGeneration").at("asymRangeMax").get<int>();
 
-        mat.generateRandomMatrix(size, minValue, maxValue, symmetricity, asymRangeMin, asymRangeMax);
-        std::cout << "Random matrix generated:" << std::endl;
-        mat.display();
+        // mat.generateRandomMatrix(size, minValue, maxValue, symmetricity, asymRangeMin, asymRangeMax);
+        // std::cout << "Random matrix generated:" << std::endl;
+        // mat.display();
+
+        // Run the Branch and Bound algorithm
+        BranchAndBound bnb(mat);
+        bnb.runBranchAndBound();
+        bnb.printSolution();
+        std::cout << "Branch and Bound algorithm completed." << std::endl;
 
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
     }
+
 
     return 0;
 }

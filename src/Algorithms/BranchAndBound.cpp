@@ -3,20 +3,20 @@
 #define INF 9999  // Define infinity as 9999
 
 struct Node {
-    int path[100];  // Array to store current path of cities, size based on max cities expected
-    int level;      // Current level in the tree (depth of recursion)
-    int cost;       // Cost of the path so far
-    int bound;      // Lower bound for the path
+    std::vector<int> path;  // Stores the current path of cities
+    int level;              // Current level in the tree (depth of recursion)
+    int cost;               // Cost of the path so far
+    int bound;              // Lower bound for the path
 
-    Node() : level(0), cost(0), bound(0) {
-        for (int i = 0; i < 100; ++i) path[i] = -1;  // Initialize path with -1 (unvisited)
+    Node(int numCities) : level(0), cost(0), bound(0) {
+        path.resize(numCities, -1); // Initialize path with -1 (unvisited)
     }
 };
 
-int BranchAndBound::calculateLowerBound(Node& node) const {
+int BranchAndBound::calculateLowerBound(const Node& node) const {
     int bound = node.cost;
-    int n = matrix.size;
-    bool visited[100] = {false};
+    int n = matrix.getSize();
+    std::vector<bool> visited(n, false);
 
     // Mark cities already visited in the current path
     for (int i = 0; i <= node.level; ++i) {
@@ -29,8 +29,12 @@ int BranchAndBound::calculateLowerBound(Node& node) const {
             int minCost = INF;
             for (int j = 0; j < n; ++j) {
                 if (!visited[j] && i != j) {
-                    minCost = std::min(minCost, matrix.data[i][j]);
+                    minCost = std::min(minCost, matrix.getData()[i][j]);
                 }
+            }
+            if (minCost == INF) {
+                // Handle edge case where there's no path from city i
+                return INF;
             }
             bound += minCost;
         }
@@ -40,19 +44,24 @@ int BranchAndBound::calculateLowerBound(Node& node) const {
 }
 
 void BranchAndBound::runBranchAndBound() {
-    int n = matrix.size;
-    Node stack[1000];      // Stack to store nodes in depth-first manner
-    int stackSize = 0;
+    int n = matrix.getSize();
+    if (n == 0) {
+        std::cerr << "Error: Matrix size is zero." << std::endl;
+        return;
+    }
 
-    Node root;
+    std::vector<Node> stack; // Vector to store nodes in depth-first manner
+
+    Node root(n);
     root.path[0] = 0;  // Start from city 0
     root.level = 0;
     root.bound = calculateLowerBound(root);
 
-    stack[stackSize++] = root;
+    stack.push_back(root);
 
-    while (stackSize > 0) {
-        Node current = stack[--stackSize];  // Pop the top of the stack
+    while (!stack.empty()) {
+        Node current = stack.back();
+        stack.pop_back();
 
         // Only proceed if the bound is less than the best known cost
         if (current.bound < bestCost) {
@@ -71,21 +80,21 @@ void BranchAndBound::runBranchAndBound() {
                 Node child = current;
                 child.level = current.level + 1;
                 child.path[child.level] = i;
-                child.cost = current.cost + matrix.data[current.path[current.level]][i];
+                child.cost = current.cost + matrix.getData()[current.path[current.level]][i];
 
                 // Check if this node completes a path
                 if (child.level == n - 1) {
-                    int totalCost = child.cost + matrix.data[i][0];  // Add cost to return to start
+                    int totalCost = child.cost + matrix.getData()[i][0];  // Add cost to return to start
                     if (totalCost < bestCost) {
                         bestCost = totalCost;
-                        for (int j = 0; j < n; ++j) bestPath[j] = child.path[j];
-                        bestPath[n] = 0;  // Complete the path by returning to start
+                        bestPath = child.path;
+                        bestPath.push_back(0);  // Complete the path by returning to start
                     }
                 } else {
                     // Calculate bound and push to stack if promising
                     child.bound = calculateLowerBound(child);
                     if (child.bound < bestCost) {
-                        stack[stackSize++] = child;  // Push onto stack
+                        stack.push_back(child);  // Push onto stack
                     }
                 }
             }
@@ -97,8 +106,8 @@ void BranchAndBound::printSolution() const {
     // Print the best path and cost
     std::cout << "Minimum Cost: " << bestCost << std::endl;
     std::cout << "Path: ";
-    for (int i = 0; i < matrix.size; ++i) {
-        std::cout << bestPath[i] << " -> ";
+    for (int i : bestPath) {
+        std::cout << i << " -> ";
     }
     std::cout << "0" << std::endl;  // Return to start city
 }
