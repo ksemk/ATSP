@@ -1,5 +1,6 @@
 #ifndef BRANCHANDBOUND_H
 #define BRANCHANDBOUND_H
+#define INF 9999  // Define infinity as 9999
 
 #include <vector>
 #include <iostream>

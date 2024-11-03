@@ -1,5 +1,6 @@
 #include "matrix.h"
 #define INF 9999  // Define infinity as 9999
+#include <algorithm> // Include algorithm for std::shuffle
 // Constructor to initialize the matrix with a given size
 Matrix::Matrix(int s) : size(s) {
     data.resize(size, std::vector<int>(size, 0)); // Initialize with 0s
@@ -82,14 +83,23 @@ void Matrix::generateRandomMatrix(int s, int minValue, int maxValue, int symmetr
 
     // If symmetricity is less than 100, introduce asymmetry
     if (symmetricity < 100) {
-        double asymmetryFactor = (100 - symmetricity) / 100.0; // Proportion of asymmetry
+        int totalElements = s * (s - 1) / 2; // Number of elements in the upper triangle excluding diagonal
+        int elementsToChange = totalElements * (100 - symmetricity) / 100; // Number of elements to change
 
-        for (int i = 1; i < s; ++i) {
-            for (int j = 0; j < i; ++j) {
-                // Add random asymmetry based on asymRangeMin and asymRangeMax
-                int randomAsymmetry = static_cast<int>(asymDis(gen) * asymmetryFactor);
-                data[i][j] += randomAsymmetry;  // Modify the lower triangle only
+        std::vector<std::pair<int, int>> indices;
+        for (int i = 0; i < s; ++i) {
+            for (int j = i + 1; j < s; ++j) {
+                indices.emplace_back(i, j);
             }
+        }
+
+        std::shuffle(indices.begin(), indices.end(), gen);
+
+        for (int k = 0; k < elementsToChange; ++k) {
+            int i = indices[k].first;
+            int j = indices[k].second;
+            int randomAsymmetry = asymDis(gen);
+            data[i][j] += randomAsymmetry; // Modify the upper triangle
         }
     }
 }

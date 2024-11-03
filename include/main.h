@@ -1,7 +1,7 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include "experiment.h"
+#include "util.h"
 #include "Algorithms/DynamicProgramming.h"
 #include "Algorithms/BranchAndBound.h"
 #include "ATSP.h"

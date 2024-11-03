@@ -31,15 +31,21 @@ int main() {
         int asymRangeMin = config_json.at("configurations").at("matrixGeneration").at("asymRangeMin").get<int>();
         int asymRangeMax = config_json.at("configurations").at("matrixGeneration").at("asymRangeMax").get<int>();
 
-        // mat.generateRandomMatrix(size, minValue, maxValue, symmetricity, asymRangeMin, asymRangeMax);
-        // std::cout << "Random matrix generated:" << std::endl;
-        // mat.display();
+        mat.generateRandomMatrix(size, minValue, maxValue, symmetricity, asymRangeMin, asymRangeMax);
+        std::cout << "Random matrix generated:" << std::endl;
+        mat.display();
 
         // Run the Branch and Bound algorithm
         BranchAndBound bnb(mat);
+
+        Util util1;
+        util1.getStartTime();
         bnb.runBranchAndBound();
-        bnb.printSolution();
+        util1.getEndTime();
         std::cout << "Branch and Bound algorithm completed." << std::endl;
+        bnb.printSolution();
+        util1.elapsedTime();
+        
 
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;

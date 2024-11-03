@@ -1,6 +1,5 @@
 #include "../../include/Algorithms/BranchAndBound.h"
 
-#define INF 9999  // Define infinity as 9999
 
 struct Node {
     std::vector<int> path;  // Stores the current path of cities
@@ -105,9 +104,5 @@ void BranchAndBound::runBranchAndBound() {
 void BranchAndBound::printSolution() const {
     // Print the best path and cost
     std::cout << "Minimum Cost: " << bestCost << std::endl;
-    std::cout << "Path: ";
-    for (int i : bestPath) {
-        std::cout << i << " -> ";
-    }
-    std::cout << "0" << std::endl;  // Return to start city
+    std::cout << std::endl;
 }

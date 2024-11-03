@@ -3,7 +3,7 @@
         "inputFilePath": "data/TSPLib_ATSP/test_matrix",
         "outputFilePath": "results/results.csv",
         "matrixGeneration": {
-            "size": 8,
+            "size": 10,
             "minValue": 1,
             "maxValue": 100,
             "symmetricity": 50,
