@@ -1,16 +1,5 @@
 #include "../../include/Algorithms/BranchAndBound.h"
-
-
-struct Node {
-    std::vector<int> path;  // Stores the current path of cities
-    int level;              // Current level in the tree (depth of recursion)
-    int cost;               // Cost of the path so far
-    int bound;              // Lower bound for the path
-
-    Node(int numCities) : level(0), cost(0), bound(0) {
-        path.resize(numCities, -1); // Initialize path with -1 (unvisited)
-    }
-};
+#include <climits> // Include for INT_MAX
 
 int BranchAndBound::calculateLowerBound(const Node& node) const {
     int bound = node.cost;
@@ -25,17 +14,20 @@ int BranchAndBound::calculateLowerBound(const Node& node) const {
     // Add minimum outbound edges for each unvisited city
     for (int i = 0; i < n; ++i) {
         if (!visited[i]) {
-            int minCost = INF;
+            int minCost = INT_MAX;
+            bool foundMinCost = false;
             for (int j = 0; j < n; ++j) {
-                if (!visited[j] && i != j) {
-                    minCost = std::min(minCost, matrix.getData()[i][j]);
+                if (visited[j] && matrix.getData()[j][i] != INT_MAX) {
+                    minCost = std::min(minCost, matrix.getData()[j][i]);
+                    foundMinCost = true;
                 }
             }
-            if (minCost == INF) {
-                // Handle edge case where there's no path from city i
-                return INF;
+            if (foundMinCost) {
+                bound += minCost;
+            } else {
+                // If no connected visited city is found, the problem is infeasible
+                return INT_MAX;
             }
-            bound += minCost;
         }
     }
 
@@ -54,6 +46,7 @@ void BranchAndBound::runBranchAndBound() {
     Node root(n);
     root.path[0] = 0;  // Start from city 0
     root.level = 0;
+    root.cost = 0;
     root.bound = calculateLowerBound(root);
 
     stack.push_back(root);
@@ -61,6 +54,13 @@ void BranchAndBound::runBranchAndBound() {
     while (!stack.empty()) {
         Node current = stack.back();
         stack.pop_back();
+
+        // // Debug: Print current node details
+        // std::cout << "Current Node: ";
+        // for (int city : current.path) {
+        //     std::cout << city << " ";
+        // }
+        // std::cout << " | Cost: " << current.cost << " | Bound: " << current.bound << std::endl;
 
         // Only proceed if the bound is less than the best known cost
         if (current.bound < bestCost) {
@@ -88,6 +88,13 @@ void BranchAndBound::runBranchAndBound() {
                         bestCost = totalCost;
                         bestPath = child.path;
                         bestPath.push_back(0);  // Complete the path by returning to start
+
+                        // Debug: Print new best path and cost
+                        std::cout << "New Best Path: ";
+                        for (int city : bestPath) {
+                            std::cout << city << " ";
+                        }
+                        std::cout << " | Cost: " << bestCost << std::endl;
                     }
                 } else {
                     // Calculate bound and push to stack if promising
@@ -104,5 +111,9 @@ void BranchAndBound::runBranchAndBound() {
 void BranchAndBound::printSolution() const {
     // Print the best path and cost
     std::cout << "Minimum Cost: " << bestCost << std::endl;
+    std::cout << "Best Path: ";
+    for (int city : bestPath) {
+        std::cout << city << " ";
+    }
     std::cout << std::endl;
 }

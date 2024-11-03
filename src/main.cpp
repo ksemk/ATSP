@@ -31,9 +31,9 @@ int main() {
         int asymRangeMin = config_json.at("configurations").at("matrixGeneration").at("asymRangeMin").get<int>();
         int asymRangeMax = config_json.at("configurations").at("matrixGeneration").at("asymRangeMax").get<int>();
 
-        mat.generateRandomMatrix(size, minValue, maxValue, symmetricity, asymRangeMin, asymRangeMax);
-        std::cout << "Random matrix generated:" << std::endl;
-        mat.display();
+        // mat.generateRandomMatrix(size, minValue, maxValue, symmetricity, asymRangeMin, asymRangeMax);
+        // std::cout << "Random matrix generated:" << std::endl;
+        // mat.display();
 
         // Run the Branch and Bound algorithm
         BranchAndBound bnb(mat);
@@ -46,6 +46,17 @@ int main() {
         bnb.printSolution();
         util1.elapsedTime();
         
+
+        // Run the Brute Force algorithm
+        BruteForce bf(mat);
+
+        Util util2;
+        util2.getStartTime();
+        bf.runBruteForce();
+        util2.getEndTime();
+        std::cout << "Brute Force algorithm completed." << std::endl;
+        bf.printSolution();
+        util2.elapsedTime();
 
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;

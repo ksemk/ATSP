@@ -1,6 +1,7 @@
 #include "matrix.h"
-#define INF 9999  // Define infinity as 9999
+#define INF -1  // Define infinity as 9999
 #include <algorithm> // Include algorithm for std::shuffle
+
 // Constructor to initialize the matrix with a given size
 Matrix::Matrix(int s) : size(s) {
     data.resize(size, std::vector<int>(size, 0)); // Initialize with 0s

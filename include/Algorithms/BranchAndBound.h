@@ -1,21 +1,18 @@
 #ifndef BRANCHANDBOUND_H
 #define BRANCHANDBOUND_H
-#define INF 9999  // Define infinity as 9999
 
 #include <vector>
 #include <iostream>
+#include <limits>
 #include "../matrix.h"
-
-// Forward declaration of Node class or struct
-class Node;  // Ensure Node is declared or included properly
-
+#include "../node.h"
 
 class BranchAndBound {
 private:
     const Matrix& matrix; // Reference to the matrix initialized in main
     int bestCost;
     std::vector<int> bestPath;
-int calculateLowerBound(const Node& node) const;
+    int calculateLowerBound(const Node& node) const;
 
 public:
     BranchAndBound(const Matrix& matrix) : matrix(matrix), bestCost(INT_MAX) {}
