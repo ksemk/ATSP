@@ -19,23 +19,23 @@ public:
     // Constructor to initialize the matrix with a given size
     Matrix(int s);
 
+    // Constructor to initialize the matrix with a given 2D vector
+    Matrix(const std::vector<std::vector<int>>& data);
+
     // Function to read matrix from a file
     void readFromFile(const std::string& filename);
 
     // Function to generate a random matrix with symmetricity control
     void generateRandomMatrix(int s, int minValue, int maxValue, int symmetricity, int asymRangeMin, int asymRangeMax);
 
+    // Function to get the cost between two cities
+    int getCost(int i, int j) const;
+
+    // Function to get the size of the matrix
+    int getSize() const;
+
     // Function to display the matrix
     void display() const;
-
-    // Getter for matrix size
-    int getSize() const;
-    
-    // Function to clear the memory used by the matrix
-    void clear();
-
-    const std::vector<std::vector<int>>& getData() const;
-
 };
 
 #endif // MATRIX_H

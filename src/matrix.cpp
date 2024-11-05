@@ -1,15 +1,17 @@
 #include "matrix.h"
-#define INF -1  // Define infinity as 9999
-#include <algorithm> // Include algorithm for std::shuffle
+#define INF 9999  // Define infinity as 9999
+#include <algorithm>
 
 // Constructor to initialize the matrix with a given size
 Matrix::Matrix(int s) : size(s) {
     data.resize(size, std::vector<int>(size, 0)); // Initialize with 0s
 }
 
+// Constructor to initialize the matrix with a given 2D vector
+Matrix::Matrix(const std::vector<std::vector<int>>& data) : data(data), size(data.size()) {}
+
 // Function to read matrix from a file
 void Matrix::readFromFile(const std::string& filename) {
-    clear(); // Clear the existing matrix
     std::ifstream file(filename);
     if (!file) {
         throw std::runtime_error("Could not open file");
@@ -49,8 +51,6 @@ void Matrix::readFromFile(const std::string& filename) {
 
 // Function to generate a random matrix with symmetricity control
 void Matrix::generateRandomMatrix(int s, int minValue, int maxValue, int symmetricity, int asymRangeMin, int asymRangeMax) {
-    clear();
-    // Validate input parameters
     if (s < 3 || s > 19) {
         throw std::invalid_argument("Size must be between 3 and 19");
     }
@@ -72,37 +72,32 @@ void Matrix::generateRandomMatrix(int s, int minValue, int maxValue, int symmetr
     std::uniform_int_distribution<> dis(minValue, maxValue);
     std::uniform_int_distribution<> asymDis(asymRangeMin, asymRangeMax);
 
-    // Generate symmetric matrix first
-    for (int i = 0; i < s; ++i) {
-        for (int j = i + 1; j < s; ++j) {
-            int randomValue = dis(gen);
-            data[i][j] = randomValue;
-            data[j][i] = randomValue; // Make it symmetric
-        }
-        data[i][i] = INF; // No connection to itself
-    }
-
-    // If symmetricity is less than 100, introduce asymmetry
-    if (symmetricity < 100) {
-        int totalElements = s * (s - 1) / 2; // Number of elements in the upper triangle excluding diagonal
-        int elementsToChange = totalElements * (100 - symmetricity) / 100; // Number of elements to change
-
-        std::vector<std::pair<int, int>> indices;
-        for (int i = 0; i < s; ++i) {
-            for (int j = i + 1; j < s; ++j) {
-                indices.emplace_back(i, j);
+    for (int i = 0; i < size; ++i) {
+        for (int j = 0; j < size; ++j) {
+            if (i == j) {
+                data[i][j] = 0;
+            } else {
+                int value = dis(gen);
+                if (symmetricity == 100 || (symmetricity > 0 && dis(gen) % 100 < symmetricity)) {
+                    data[i][j] = value;
+                    data[j][i] = value;
+                } else {
+                    data[i][j] = value;
+                    data[j][i] = asymDis(gen);
+                }
             }
         }
-
-        std::shuffle(indices.begin(), indices.end(), gen);
-
-        for (int k = 0; k < elementsToChange; ++k) {
-            int i = indices[k].first;
-            int j = indices[k].second;
-            int randomAsymmetry = asymDis(gen);
-            data[i][j] += randomAsymmetry; // Modify the upper triangle
-        }
     }
+}
+
+// Function to get the cost between two cities
+int Matrix::getCost(int i, int j) const {
+    return data[i][j];
+}
+
+// Function to get the size of the matrix
+int Matrix::getSize() const {
+    return size;
 }
 
 // Function to display the matrix
@@ -113,20 +108,4 @@ void Matrix::display() const {
         }
         std::cout << std::endl;
     }
-}
-
-// Getter for matrix size
-int Matrix::getSize() const {
-    return size;
-}
-// Function to clear the memory used by the matrix
-void Matrix::clear() {
-    size = 0;
-    data.clear(); // Clear the vector, releasing the memory
-
-    }
-
-// Getter for matrix data
-const std::vector<std::vector<int>>& Matrix::getData() const {
-    return data;
 }

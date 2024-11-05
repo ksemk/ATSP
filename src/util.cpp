@@ -10,6 +10,14 @@ void Util::getEndTime() {
     duration = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
 }
 
-void Util::elapsedTime() {
-    std::cout << "Elapsed time: " << duration.count()/10e6 << " milliseconds" << std::endl;
+void Util::elapsedTimeMilliseconds() {
+    std::cout << "Elapsed time: " << duration.count() / 1e6 << " milliseconds" << std::endl;
+}
+
+void Util::elapsedTimeSeconds() {
+    std::cout << "Elapsed time: " << duration.count() / 1e9 << " seconds" << std::endl;
+}
+
+void Util::saveResults(std::string algoName, int sampleNum, int size, float time) {
+
 }

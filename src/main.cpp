@@ -44,7 +44,7 @@ int main() {
         util1.getEndTime();
         std::cout << "Branch and Bound algorithm completed." << std::endl;
         bnb.printSolution();
-        util1.elapsedTime();
+        util1.elapsedTimeMilliseconds();
         
 
         // Run the Brute Force algorithm
@@ -56,7 +56,7 @@ int main() {
         util2.getEndTime();
         std::cout << "Brute Force algorithm completed." << std::endl;
         bf.printSolution();
-        util2.elapsedTime();
+        util2.elapsedTimeMilliseconds();
 
     } catch (const std::exception& e) {
         std::cerr << "Error: " << e.what() << std::endl;

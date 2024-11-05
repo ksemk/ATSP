@@ -1,117 +1,84 @@
 #include "../../include/Algorithms/BranchAndBound.h"
-#include <climits> // Include for INT_MAX
+#include <iostream>
+#include <limits>
 
-int BranchAndBound::calculateLowerBound(const Node& node) const {
-    int bound = node.cost;
-    int n = matrix.getSize();
-    std::vector<bool> visited(n, false);
-
-    // Mark cities already visited in the current path
-    for (int i = 0; i <= node.level; ++i) {
-        visited[node.path[i]] = true;
+BranchAndBound::Subproblem::Subproblem(int numCities) : cost(0), lowerBound(0) {
+    visited.reserve(numCities);
+    visited.push_back(0);  // Start from city 0
+    for (int i = 1; i < numCities; ++i) {
+        unvisited.push_back(i);
     }
-
-    // Add minimum outbound edges for each unvisited city
-    for (int i = 0; i < n; ++i) {
-        if (!visited[i]) {
-            int minCost = INT_MAX;
-            bool foundMinCost = false;
-            for (int j = 0; j < n; ++j) {
-                if (visited[j] && matrix.getData()[j][i] != INT_MAX) {
-                    minCost = std::min(minCost, matrix.getData()[j][i]);
-                    foundMinCost = true;
-                }
-            }
-            if (foundMinCost) {
-                bound += minCost;
-            } else {
-                // If no connected visited city is found, the problem is infeasible
-                return INT_MAX;
-            }
-        }
-    }
-
-    return bound;
 }
 
-void BranchAndBound::runBranchAndBound() {
+BranchAndBound::BranchAndBound(const Matrix& matrix) 
+    : matrix(matrix), bestCost(std::numeric_limits<int>::max()) {}
+
+int BranchAndBound::calculateLowerBound(const Subproblem& subproblem) const {
+    int bound = subproblem.cost;
     int n = matrix.getSize();
-    if (n == 0) {
-        std::cerr << "Error: Matrix size is zero." << std::endl;
+
+    // For each unvisited city, calculate the minimum cost to enter and exit
+    for (int city : subproblem.unvisited) {
+        int minOut = std::numeric_limits<int>::max();
+        int minIn = std::numeric_limits<int>::max();
+
+        for (int j = 0; j < n; ++j) {
+            if (j != city) {
+                int costOut = matrix.getCost(city, j);
+                int costIn = matrix.getCost(j, city);
+                if (costOut < minOut) minOut = costOut;
+                if (costIn < minIn) minIn = costIn;
+            }
+        }
+        bound += (minOut + minIn);
+    }
+
+    // Divide bound by 2 to avoid overestimation
+    return bound / 2;
+}
+
+void BranchAndBound::processSubproblem(Subproblem& subproblem) {
+    // If all cities are visited, close the tour and update best cost if necessary
+    if (subproblem.visited.size() == matrix.getSize()) {
+        int tourCost = subproblem.cost + matrix.getCost(subproblem.visited.back(), 0);
+        if (tourCost < bestCost) {
+            bestCost = tourCost;
+            bestPath = subproblem.visited;
+            bestPath.push_back(0);  // Return to the start city
+        }
         return;
     }
 
-    std::vector<Node> stack; // Vector to store nodes in depth-first manner
+    // Loop through each unvisited city and create a new subproblem for it
+    for (size_t i = 0; i < subproblem.unvisited.size(); ++i) {
+        int city = subproblem.unvisited[i];
+        
+        Subproblem newSubproblem = subproblem;  // Duplicate current subproblem
+        newSubproblem.visited.push_back(city);
+        newSubproblem.cost += matrix.getCost(subproblem.visited.back(), city);
 
-    Node root(n);
-    root.path[0] = 0;  // Start from city 0
-    root.level = 0;
-    root.cost = 0;
-    root.bound = calculateLowerBound(root);
+        // Remove the city from unvisited list in the new subproblem
+        newSubproblem.unvisited.erase(newSubproblem.unvisited.begin() + i);
 
-    stack.push_back(root);
+        // Calculate the lower bound for this new subproblem
+        newSubproblem.lowerBound = calculateLowerBound(newSubproblem);
 
-    while (!stack.empty()) {
-        Node current = stack.back();
-        stack.pop_back();
-
-        // // Debug: Print current node details
-        // std::cout << "Current Node: ";
-        // for (int city : current.path) {
-        //     std::cout << city << " ";
-        // }
-        // std::cout << " | Cost: " << current.cost << " | Bound: " << current.bound << std::endl;
-
-        // Only proceed if the bound is less than the best known cost
-        if (current.bound < bestCost) {
-            for (int i = 0; i < n; ++i) {
-                // Check if city i is already visited in the path
-                bool visited = false;
-                for (int j = 0; j <= current.level; ++j) {
-                    if (current.path[j] == i) {
-                        visited = true;
-                        break;
-                    }
-                }
-                if (visited) continue;
-
-                // Create new node for visiting city i
-                Node child = current;
-                child.level = current.level + 1;
-                child.path[child.level] = i;
-                child.cost = current.cost + matrix.getData()[current.path[current.level]][i];
-
-                // Check if this node completes a path
-                if (child.level == n - 1) {
-                    int totalCost = child.cost + matrix.getData()[i][0];  // Add cost to return to start
-                    if (totalCost < bestCost) {
-                        bestCost = totalCost;
-                        bestPath = child.path;
-                        bestPath.push_back(0);  // Complete the path by returning to start
-
-                        // Debug: Print new best path and cost
-                        std::cout << "New Best Path: ";
-                        for (int city : bestPath) {
-                            std::cout << city << " ";
-                        }
-                        std::cout << " | Cost: " << bestCost << std::endl;
-                    }
-                } else {
-                    // Calculate bound and push to stack if promising
-                    child.bound = calculateLowerBound(child);
-                    if (child.bound < bestCost) {
-                        stack.push_back(child);  // Push onto stack
-                    }
-                }
-            }
+        // Proceed with the new subproblem if its bound is better than the current best cost
+        if (newSubproblem.lowerBound < bestCost) {
+            processSubproblem(newSubproblem);
         }
     }
 }
 
+void BranchAndBound::runBranchAndBound() {
+    Subproblem initial(matrix.getSize());
+    initial.lowerBound = calculateLowerBound(initial);
+    processSubproblem(initial);
+}
+
 void BranchAndBound::printSolution() const {
-    // Print the best path and cost
-    std::cout << "Minimum Cost: " << bestCost << std::endl;
-    std::cout << "Best Path: ";
+    std::cout << "Minimum Cost bnb: " << bestCost << std::endl;
+    std::cout << "Best Path bnb: ";
     for (int city : bestPath) {
         std::cout << city << " ";
     }

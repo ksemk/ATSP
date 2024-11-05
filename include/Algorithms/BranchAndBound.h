@@ -9,13 +9,25 @@
 
 class BranchAndBound {
 private:
-    const Matrix& matrix; // Reference to the matrix initialized in main
+    const Matrix& matrix;
     int bestCost;
     std::vector<int> bestPath;
-    int calculateLowerBound(const Node& node) const;
+
+    class Subproblem {
+    public:
+        std::vector<int> visited;
+        std::vector<int> unvisited;
+        int cost;
+        int lowerBound;
+
+        Subproblem(int numCities);
+    };
+
+    int calculateLowerBound(const Subproblem& subproblem) const;
+    void processSubproblem(Subproblem& subproblem);
 
 public:
-    BranchAndBound(const Matrix& matrix) : matrix(matrix), bestCost(INT_MAX) {}
+    BranchAndBound(const Matrix& matrix);
     void runBranchAndBound();
     void printSolution() const;
 };
