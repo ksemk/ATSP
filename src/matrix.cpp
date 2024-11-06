@@ -1,4 +1,4 @@
-#include "matrix.h"
+#include "../include/matrix.h"
 #define INF 9999  // Define infinity as 9999
 #include <algorithm>
 
@@ -9,6 +9,12 @@ Matrix::Matrix(int s) : size(s) {
 
 // Constructor to initialize the matrix with a given 2D vector
 Matrix::Matrix(const std::vector<std::vector<int>>& data) : data(data), size(data.size()) {}
+
+// Destructor to clear the matrix data
+Matrix::~Matrix() {
+    size = 0;
+    data.clear();
+}
 
 // Function to read matrix from a file
 void Matrix::readFromFile(const std::string& filename) {
@@ -51,6 +57,7 @@ void Matrix::readFromFile(const std::string& filename) {
 
 // Function to generate a random matrix with symmetricity control
 void Matrix::generateRandomMatrix(int s, int minValue, int maxValue, int symmetricity, int asymRangeMin, int asymRangeMax) {
+    // Validate inputs
     if (s < 3 || s > 19) {
         throw std::invalid_argument("Size must be between 3 and 19");
     }
@@ -60,10 +67,11 @@ void Matrix::generateRandomMatrix(int s, int minValue, int maxValue, int symmetr
     if (symmetricity < 0 || symmetricity > 100) {
         throw std::invalid_argument("Symmetricity must be between 0 and 100");
     }
-    if (asymRangeMin < -maxValue || asymRangeMax > maxValue || asymRangeMin > asymRangeMax) {
+    if (asymRangeMin < -minValue || asymRangeMax > maxValue || asymRangeMin > asymRangeMax) {
         throw std::invalid_argument("Invalid asymmetric range");
     }
 
+    // Set matrix size and initialize all cells to 0
     size = s;
     data.resize(size, std::vector<int>(size, 0));
 
@@ -71,24 +79,24 @@ void Matrix::generateRandomMatrix(int s, int minValue, int maxValue, int symmetr
     std::mt19937 gen(rd());
     std::uniform_int_distribution<> dis(minValue, maxValue);
     std::uniform_int_distribution<> asymDis(asymRangeMin, asymRangeMax);
+    std::uniform_int_distribution<> symDis(0, 99);  // For symmetricity percentage
 
     for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size; ++j) {
-            if (i == j) {
-                data[i][j] = 0;
-            } else {
-                int value = dis(gen);
-                if (symmetricity == 100 || (symmetricity > 0 && dis(gen) % 100 < symmetricity)) {
-                    data[i][j] = value;
-                    data[j][i] = value;
-                } else {
-                    data[i][j] = value;
-                    data[j][i] = asymDis(gen);
-                }
+        for (int j = i + 1; j < size; ++j) { // Only fill upper triangle, handle symmetry later
+            int value = dis(gen);
+
+            if (symDis(gen) < symmetricity) {  // Make this pair symmetric
+                data[i][j] = value;
+                data[j][i] = value;
+            } else {  // Make this pair asymmetric
+                data[i][j] = value;
+                data[j][i] = value + asymDis(gen);  // Offset by a random value within asymmetry range
             }
         }
+        data[i][i] = -1; // Diagonal elements set to -1 (optional, can be changed as needed)
     }
 }
+
 
 // Function to get the cost between two cities
 int Matrix::getCost(int i, int j) const {

@@ -22,6 +22,10 @@ public:
     // Constructor to initialize the matrix with a given 2D vector
     Matrix(const std::vector<std::vector<int>>& data);
 
+    // Destructor to clear the matrix data
+    ~Matrix();
+
+
     // Function to read matrix from a file
     void readFromFile(const std::string& filename);
 

@@ -11,9 +11,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 file(GLOB SOURCES "src/*.cpp" "main.cpp" "src/Algorithms/*.cpp")
 add_executable(ATSP ${SOURCES})
 
-# Include directories
-include_directories(include)
-
 # Add source files
 file(GLOB SOURCES "src/*.cpp" "src/Algorithms/*.cpp")
 

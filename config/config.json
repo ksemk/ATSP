@@ -1,14 +1,18 @@
 {
     "configurations": {
-        "inputFilePath": "data/TSPLib_ATSP/matrix_11x11.atsp",
+        "isMatrixRandom": true,
+        "inputFilePath": "data/TSPLib_ATSP/matrix_8x8.atsp",
         "outputFilePath": "results/results.csv",
         "matrixGeneration": {
-            "size": 10,
-            "minValue": 1,
+            "initial_size": 5,
+            "final_size": 12,
+            "step": 1,
+            "minValue": 10,
             "maxValue": 100,
             "symmetricity": 50,
             "asymRangeMin": -5,
             "asymRangeMax": 5
-        }
+        },
+        "numSamples": 100
     }
 }

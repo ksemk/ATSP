@@ -9,12 +9,13 @@
 #include "matrix.h"
 #include "node.h"
 
-#include <../include/lib/nlohmann/json.hpp>
+#include "lib/nlohmann/json.hpp"
 
 #include <fstream>
 #include <iostream>
 #include <string>
 
-
+void readConfig(const nlohmann::json& config_json);
+void runMultipleAlgorithms(int numSamples, Matrix& mat);
 
 #endif // MAIN_H
