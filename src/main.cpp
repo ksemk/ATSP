@@ -18,6 +18,7 @@ int main() {
     nlohmann::json config_json;
     config_file >> config_json;
     readConfig(config_json);
+    std::cout << doBNB << std::endl;
 
     try {
         if (isRandom) {
@@ -35,15 +36,17 @@ int main() {
             std::string file_name = input_path.substr(input_path.find_last_of("/\\") + 1);
             std::cout << "Matrix loaded from file: " << file_name << std::endl;
             mat.display();
-            BranchAndBound bnb(mat);
-            Util util1;
-            util1.getStartTime();
-            bnb.runBranchAndBound();
-            util1.getEndTime();
-            std::cout << "Branch and Bound algorithm completed for sample " << file_name << std::endl;
-            bnb.printSolution();
-            util1.printElapsedTimeMilliseconds();
-
+            if (doBNB){
+                BranchAndBound bnb(mat);
+                Util util1;
+                util1.getStartTime();
+                bnb.runBranchAndBound();
+                util1.getEndTime();
+                std::cout << "Branch and Bound algorithm completed for sample " << file_name << std::endl;
+                bnb.printSolution();
+                util1.printElapsedTimeMilliseconds();
+            }
+            if (doBF){
             BruteForce bf(mat);
             Util util2;
             util2.getStartTime();
@@ -52,6 +55,7 @@ int main() {
             std::cout << "Brute Force algorithm completed for sample " << file_name << std::endl;
             bf.printSolution();
             util2.printElapsedTimeMilliseconds();
+            }
         }
 
     } catch (const std::exception& e) {
@@ -103,6 +107,8 @@ void readConfig(const nlohmann::json& config_json) {
         // Required configuration fields
         numSamples = config_json.at("configurations").at("numSamples").get<int>();
         isRandom = config_json.at("configurations").at("isMatrixRandom").get<bool>();
+        doBNB = config_json.at("configurations").at("doBNB").get<bool>();
+        doBF = config_json.at("configurations").at("doBF").get<bool>();
 
         // Conditional parsing based on whether the matrix is random or loaded from a file
         if (isRandom) {
@@ -115,8 +121,7 @@ void readConfig(const nlohmann::json& config_json) {
             asymRangeMin = config_json.at("configurations").at("matrixGeneration").at("asymRangeMin").get<int>();
             asymRangeMax = config_json.at("configurations").at("matrixGeneration").at("asymRangeMax").get<int>();
             step = config_json.at("configurations").at("matrixGeneration").at("step").get<int>();
-            doBNB = config_json.at("configurations").at("doBNB").get<bool>();
-            doBF = config_json.at("configurations").at("doBF").get<bool>();
+
         } else {
             // Ensure input file path is available when isMatrixRandom is false
             input_path = "../" + config_json.at("configurations").at("inputFilePath").get<std::string>();

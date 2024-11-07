@@ -1,7 +1,7 @@
 {
     "configurations": {
         "isMatrixRandom": false,
-        "inputFilePath": "data/PEA_test/tsp_14_db.txt",
+        "inputFilePath": "data/PEA_test/tsp_10b.txt",
         "outputFilePath": "results/results.csv",
         "matrixGeneration": {
             "initial_size": 5,
