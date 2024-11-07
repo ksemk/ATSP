@@ -2,7 +2,7 @@
 
 // Global variables
 int numSamples;
-bool isRandom;
+bool isRandom, doBNB, doBF;
 int initial_size, final_size, minValue, maxValue, symmetricity, asymRangeMin, asymRangeMax, step;
 std::string input_path;
 
@@ -20,10 +20,6 @@ int main() {
     readConfig(config_json);
 
     try {
-
-        Matrix mat(0); // Initialize with size 0, as it will be set from the file
-        // Loop to run multiple samples
-
         if (isRandom) {
             for (int size = initial_size; size <= final_size; size += step) {
                 Matrix mat(0);
@@ -33,12 +29,29 @@ int main() {
                 runMultipleAlgorithms(numSamples, mat);
             }
         } else {
-            // Extract the input path from the JSON object
+            Matrix mat(0);
+
             mat.readFromFile(input_path);
-            
             std::string file_name = input_path.substr(input_path.find_last_of("/\\") + 1);
             std::cout << "Matrix loaded from file: " << file_name << std::endl;
             mat.display();
+            BranchAndBound bnb(mat);
+            Util util1;
+            util1.getStartTime();
+            bnb.runBranchAndBound();
+            util1.getEndTime();
+            std::cout << "Branch and Bound algorithm completed for sample " << file_name << std::endl;
+            bnb.printSolution();
+            util1.printElapsedTimeMilliseconds();
+
+            BruteForce bf(mat);
+            Util util2;
+            util2.getStartTime();
+            bf.runBruteForce();
+            util2.getEndTime();
+            std::cout << "Brute Force algorithm completed for sample " << file_name << std::endl;
+            bf.printSolution();
+            util2.printElapsedTimeMilliseconds();
         }
 
     } catch (const std::exception& e) {
@@ -54,33 +67,34 @@ int main() {
 void runMultipleAlgorithms(int numSamples, Matrix& mat) {
     for (int i = 0; i < numSamples; ++i) {
     std::cout << "Running sample " << (i + 1) << " of " << numSamples << std::endl;
+    if(doBNB){
+        // Run the Branch and Bound algorithm
+        BranchAndBound bnb(mat);
 
-    // Run the Branch and Bound algorithm
-    BranchAndBound bnb(mat);
+        Util util1;
+        util1.getStartTime();
+        bnb.runBranchAndBound();
+        util1.getEndTime();
+        std::cout << "Branch and Bound algorithm completed for sample " << (i + 1) << std::endl;
+        bnb.printSolution();
+        util1.printElapsedTimeMilliseconds();
+        util1.saveResults("../results/resultsBNB_" + std::to_string(mat.getSize()) + "x" + std::to_string(mat.getSize()) + ".csv", 
+        "bnb", mat.getSize(), util1.returnElapsedTimeMilliseconds());
+    }
+    if(doBF){
+        // Run the Brute Force algorithm
+        BruteForce bf(mat);
 
-    Util util1;
-    util1.getStartTime();
-    bnb.runBranchAndBound();
-    util1.getEndTime();
-    std::cout << "Branch and Bound algorithm completed for sample " << (i + 1) << std::endl;
-    bnb.printSolution();
-    util1.printElapsedTimeMilliseconds();
-    util1.saveResults("../results/resultsBNB_" + std::to_string(mat.getSize()) + "x" + std::to_string(mat.getSize()) + ".csv", 
-    "bnb", mat.getSize(), util1.returnElapsedTimeMilliseconds());
-
-
-    // Run the Brute Force algorithm
-    BruteForce bf(mat);
-
-    Util util2;
-    util2.getStartTime();
-    bf.runBruteForce();
-    util2.getEndTime();
-    std::cout << "Brute Force algorithm completed for sample " << (i + 1) << std::endl;
-    bf.printSolution();
-    util2.printElapsedTimeMilliseconds();
-    util2.saveResults("../results/resultsBF_" + std::to_string(mat.getSize()) + "x" + std::to_string(mat.getSize()) + ".csv", 
-    "bf", mat.getSize(), util2.returnElapsedTimeMilliseconds());
+        Util util2;
+        util2.getStartTime();
+        bf.runBruteForce();
+        util2.getEndTime();
+        std::cout << "Brute Force algorithm completed for sample " << (i + 1) << std::endl;
+        bf.printSolution();
+        util2.printElapsedTimeMilliseconds();
+        util2.saveResults("../results/resultsBF_" + std::to_string(mat.getSize()) + "x" + std::to_string(mat.getSize()) + ".csv", 
+        "bf", mat.getSize(), util2.returnElapsedTimeMilliseconds());
+        }
     }
 }
 
@@ -101,6 +115,8 @@ void readConfig(const nlohmann::json& config_json) {
             asymRangeMin = config_json.at("configurations").at("matrixGeneration").at("asymRangeMin").get<int>();
             asymRangeMax = config_json.at("configurations").at("matrixGeneration").at("asymRangeMax").get<int>();
             step = config_json.at("configurations").at("matrixGeneration").at("step").get<int>();
+            doBNB = config_json.at("configurations").at("doBNB").get<bool>();
+            doBF = config_json.at("configurations").at("doBF").get<bool>();
         } else {
             // Ensure input file path is available when isMatrixRandom is false
             input_path = "../" + config_json.at("configurations").at("inputFilePath").get<std::string>();

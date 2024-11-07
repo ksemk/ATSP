@@ -1,6 +1,4 @@
 #include "../../include/Algorithms/BranchAndBound.h"
-#include <iostream>
-#include <limits>
 
 BranchAndBound::Subproblem::Subproblem(int numCities) : cost(0), lowerBound(0) {
     visited.reserve(numCities);

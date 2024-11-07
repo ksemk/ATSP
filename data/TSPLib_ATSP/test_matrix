@@ -1,11 +1,9 @@
-DIMENSION:  5
+DIMENSION:  4
 EDGE_WEIGHT_SECTION
 
--1  1  0  0  1
- 1 -1  1  0  0
- 0  1 -1  1  0
- 0  0  1 -1  1
- 1  0  0  1 -1
-EOF
+-1 10 15 20
+ 5 -1  9 10
+ 6 13 -1 12
+ 8  8  9 -1
 
-sum_min = 0
+EOF
