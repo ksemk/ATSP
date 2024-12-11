@@ -1,5 +1,4 @@
 #include "../include/matrix.h"
-#define INF 9999  // Define infinity as 9999
 #include <algorithm>
 
 // Constructor to initialize the matrix with a given size

@@ -15,10 +15,10 @@ int main() {
         return 1;
     }
     // Parse the config file as JSON
+    
     nlohmann::json config_json;
     config_file >> config_json;
     readConfig(config_json);
-    std::cout << doBNB << std::endl;
 
     try {
         if (isRandom) {
