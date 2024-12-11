@@ -1,6 +1,6 @@
 {
     "configurations": {
-        "isMatrixRandom": true,
+        "isMatrixRandom": false,
         "inputFilePath": "data/PEA_test/tsp_10a.txt",
         "outputFilePath": "results/results.csv",
         "matrixGeneration": {
@@ -15,6 +15,6 @@
         },
         "numSamples": 1,
         "doBNB": true,
-        "doBF": false
+        "doBF": true
     }
 }

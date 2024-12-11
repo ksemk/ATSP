@@ -1,60 +1,59 @@
 #include "../include/matrix.h"
 #include <algorithm>
 
-// Constructor to initialize the matrix with a given size
-Matrix::Matrix(int s) : size(s) {
-    data.resize(size, std::vector<int>(size, 0)); // Initialize with 0s
+Matrix::Matrix(int s) : size(s), data(nullptr) {
+    // Allocate memory for a size x size matrix
+    data = new int[size * size]; // Allocating a contiguous block of memory for the matrix
+    // std::fill(data, data + size * size, 0); // Initialize the matrix with zeros
 }
 
-// Constructor to initialize the matrix with a given 2D vector
-Matrix::Matrix(const std::vector<std::vector<int>>& data) : data(data), size(data.size()) {}
-
-// Destructor to clear the matrix data
 Matrix::~Matrix() {
-    size = 0;
-    data.clear();
+    // Deallocate the memory
+    delete[] data;
 }
 
-// Function to read matrix from a file
 void Matrix::readFromFile(const std::string& filename) {
     std::ifstream file(filename);
-    if (!file) {
-        throw std::runtime_error("Could not open file");
+    if (!file.is_open()) {
+        throw std::runtime_error("Could not open file: " + filename);
     }
 
+    // Read the matrix size from the first line
     std::string line;
-    int dimension = 0;
+    if (!std::getline(file, line)) {
+        throw std::runtime_error("Error: Could not read the size of the matrix from the file.");
+    }
+    
+    std::stringstream ss(line);
+    ss >> size;  // Set the matrix size
 
-    // Read the dimension from the file (look for the DIMENSION line)
-    while (std::getline(file, line)) {
-        if (line.find("DIMENSION") != std::string::npos) {
-            std::istringstream iss(line);
-            std::string temp;
-            iss >> temp >> dimension; // Read "DIMENSION:" and the number
-            break;
-        }
+    if (size <= 0) {
+        throw std::runtime_error("Error: Invalid matrix size.");
     }
 
-    // Resize the matrix based on the dimension
-    size = dimension;
-    data.resize(size, std::vector<int>(size, 0));
+    // Allocate memory for the matrix (1D array representation)
+    data = new int[size * size];
 
-    // Read the matrix values from the file after the EDGE_WEIGHT_SECTION
-    while (std::getline(file, line)) {
-        if (line.find("EDGE_WEIGHT_SECTION") != std::string::npos) {
-            break;
+    int row = 0;
+    // Read the matrix data from the file
+    while (std::getline(file, line) && row < size) {
+        std::stringstream ss(line);
+        for (int col = 0; col < size; ++col) {
+            ss >> data[row * size + col];  // Fill the flattened matrix array
         }
+        ++row;
     }
 
-    // Read the matrix data
-    for (int i = 0; i < size; ++i) {
-        for (int j = 0; j < size; ++j) {
-            file >> data[i][j];
-        }
+    // Check if there was any mismatch in the number of rows read
+    if (row != size) {
+        throw std::runtime_error("Error: Matrix size mismatch, expected " + std::to_string(size) + " rows, but got " + std::to_string(row) + " rows.");
     }
+
+    // Close the file after reading
+    file.close();
 }
 
-// Function to generate a random matrix with symmetricity control
+
 void Matrix::generateRandomMatrix(int s, int minValue, int maxValue, int symmetricity, int asymRangeMin, int asymRangeMax) {
     // Validate inputs
     if (s < 3 || s > 19) {
@@ -70,9 +69,10 @@ void Matrix::generateRandomMatrix(int s, int minValue, int maxValue, int symmetr
         throw std::invalid_argument("Invalid asymmetric range");
     }
 
-    // Set matrix size and initialize all cells to 0
+    // Set matrix size and allocate memory for it
     size = s;
-    data.resize(size, std::vector<int>(size, 0));
+    delete[] data; // Deallocate previous memory if any
+    data = new int[size * size]; // Allocate new memory
 
     std::random_device rd;
     std::mt19937 gen(rd());
@@ -80,38 +80,35 @@ void Matrix::generateRandomMatrix(int s, int minValue, int maxValue, int symmetr
     std::uniform_int_distribution<> asymDis(asymRangeMin, asymRangeMax);
     std::uniform_int_distribution<> symDis(0, 99);  // For symmetricity percentage
 
+    // Generate random matrix with symmetricity control
     for (int i = 0; i < size; ++i) {
         for (int j = i + 1; j < size; ++j) { // Only fill upper triangle, handle symmetry later
             int value = dis(gen);
 
             if (symDis(gen) < symmetricity) {  // Make this pair symmetric
-                data[i][j] = value;
-                data[j][i] = value;
+                data[i * size + j] = value;
+                data[j * size + i] = value;
             } else {  // Make this pair asymmetric
-                data[i][j] = value;
-                data[j][i] = value + asymDis(gen);  // Offset by a random value within asymmetry range
+                data[i * size + j] = value;
+                data[j * size + i] = value + asymDis(gen);  // Offset by a random value within asymmetry range
             }
         }
-        data[i][i] = -1; // Diagonal elements set to -1 (optional, can be changed as needed)
+        data[i * size + i] = -1; // Diagonal elements set to -1 (optional)
     }
 }
 
-
-// Function to get the cost between two cities
 int Matrix::getCost(int i, int j) const {
-    return data[i][j];
+    return data[i * size + j]; // Access element in flattened matrix
 }
 
-// Function to get the size of the matrix
 int Matrix::getSize() const {
     return size;
 }
 
-// Function to display the matrix
 void Matrix::display() const {
-    for (const auto& row : data) {
-        for (const auto& val : row) {
-            std::cout << std::setw(5) << val << " ";
+    for (int i = 0; i < size; ++i) {
+        for (int j = 0; j < size; ++j) {
+            std::cout << std::setw(5) << data[i * size + j] << " "; // Access element in flattened matrix
         }
         std::cout << std::endl;
     }

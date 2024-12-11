@@ -23,7 +23,7 @@ int main() {
     try {
         if (isRandom) {
             for (int size = initial_size; size <= final_size; size += step) {
-                Matrix mat(0);
+                Matrix mat(size);
                 mat.generateRandomMatrix(size, minValue, maxValue, symmetricity, asymRangeMin, asymRangeMax);
                 std::cout << "Random matrix generated:" << std::endl;
                 mat.display();
@@ -63,7 +63,7 @@ int main() {
         return 1;
     }
 
-
+    std::cout<<"Program completed successfully."<<std::endl;
     return 0;
 }
 
@@ -102,6 +102,7 @@ void runMultipleAlgorithms(int numSamples, Matrix& mat) {
     }
 }
 
+
 void readConfig(const nlohmann::json& config_json) {
     try {
         // Required configuration fields
@@ -131,3 +132,8 @@ void readConfig(const nlohmann::json& config_json) {
         exit(1);
     }
 }
+
+
+
+// TODO: change matrix to pointers
+// TODO: scalibale solutions
