@@ -35,19 +35,29 @@ void Matrix::readFromFile(const std::string& filename) {
     data = new int[size * size];
 
     int row = 0;
-    // Read the matrix data from the file
-    while (std::getline(file, line) && row < size) {
-        std::stringstream ss(line);
-        for (int col = 0; col < size; ++col) {
-            ss >> data[row * size + col];  // Fill the flattened matrix array
-        }
-        ++row;
-    }
+// Read the matrix data from the file
+if (file.is_open()) {
+    int totalElements = size * size; // Total number of elements in the matrix
+    int index = 0; // Index for tracking position in the matrix
 
-    // Check if there was any mismatch in the number of rows read
-    if (row != size) {
-        throw std::runtime_error("Error: Matrix size mismatch, expected " + std::to_string(size) + " rows, but got " + std::to_string(row) + " rows.");
+    while (index < totalElements && file >> data[index]) {
+        // Determine which row we're currently processing
+        int row = index / size;
+        
+        // Modify the first element of the row to 0
+        if (index % size == row) {
+            data[index] = 0;
+        }
+
+        ++index;
     }
+}
+
+
+    // // Check if there was any mismatch in the number of rows read
+    // if (row != size) {
+    //     throw std::runtime_error("Error: Matrix size mismatch, expected " + std::to_string(size) + " rows, but got " + std::to_string(row) + " rows.");
+    // }
 
     // Close the file after reading
     file.close();

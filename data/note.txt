@@ -1,8 +1,0 @@
-EDGE WEIGHT TYPE : EXPLICIT - Weights are listed explicitly in the corresponding section
-
-
-
-Pytania:
-1. Czy jeżeli nie ma scieżki to dawać 9999 jak w tsplib czy -1
-2. W tsplib są 0, jaki zakres robić w generacji?
-3. Czy można używać biblioteki do kodu poza algorytmami?

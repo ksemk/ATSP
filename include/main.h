@@ -2,7 +2,6 @@
 #define MAIN_H
 
 #include "util.h"
-#include "Algorithms/DynamicProgramming.h"
 #include "Algorithms/BranchAndBound.h"
 #include "Algorithms/BruteForce.h"
 #include "matrix.h"

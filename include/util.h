@@ -10,9 +10,9 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include "Algorithms/DynamicProgramming.h"
 #include "Algorithms/BranchAndBound.h"
 #include "Algorithms/BruteForce.h"
+#include "Algorithms/TabuSearch.h"
 
 #include <chrono>
 #include <iostream>

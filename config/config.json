@@ -1,11 +1,11 @@
 {
     "configurations": {
         "isMatrixRandom": false,
-        "inputFilePath": "data/PEA_test/tsp_10a.txt",
+        "inputFilePath": "data/TSPLib_ATSP/ft53.atsp",
         "outputFilePath": "results/results.csv",
         "matrixGeneration": {
             "initial_size": 5,
-            "final_size": 12,
+            "final_size": 15,
             "step": 1,
             "minValue": 10,
             "maxValue": 100,
@@ -13,8 +13,13 @@
             "asymRangeMin": -5,
             "asymRangeMax": 5
         },
+        "tabuSearch": {
+            "maxIterations": 100000000,
+            "tabuSize": 10
+        },
         "numSamples": 1,
-        "doBNB": true,
-        "doBF": true
+        "doBNB": false,
+        "doBF": false,
+        "doTabu": true
     }
 }
