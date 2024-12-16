@@ -47,24 +47,25 @@ int main() {
                 util1.printElapsedTimeMilliseconds();
             }
             if (doBF){
-            BruteForce bf(mat);
-            Util util2;
-            util2.getStartTime();
-            bf.runBruteForce();
-            util2.getEndTime();
-            std::cout << "Brute Force algorithm completed for sample " << file_name << std::endl;
-            bf.printSolution();
-            util2.printElapsedTimeMilliseconds();
+                BruteForce bf(mat);
+                Util util2;
+                util2.getStartTime();
+                bf.runBruteForce();
+                util2.getEndTime();
+                std::cout << "Brute Force algorithm completed for sample " << file_name << std::endl;
+                bf.printSolution();
+                util2.printElapsedTimeMilliseconds();
             }
             if (doTabu){
-                TabuSearch tabu(mat, tabuSize, maxIterations);
-                Util util3;
-                util3.getStartTime();
-                tabu.runTabuSearch();
-                util3.getEndTime();
-                std::cout << "Tabu Search algorithm completed for sample " << file_name << std::endl;
-                tabu.printSolutionTabu();
-                util3.printElapsedTimeMilliseconds();
+                // TabuSearch tabu(mat, tabuSize, maxIterations);
+                // Util util3;
+                // util3.getStartTime();
+                // tabu.runTabuSearch();
+                // util3.getEndTime();
+                // std::cout << "Tabu Search algorithm completed for sample " << file_name << std::endl;
+                // tabu.printSolutionTabu();
+                // util3.printElapsedTimeMilliseconds();
+                runMultipleAlgorithms(numSamples, mat);
             }
         }
 
@@ -119,8 +120,9 @@ void runMultipleAlgorithms(int numSamples, Matrix& mat) {
             std::cout << "Tabu Search algorithm completed for sample " << (i + 1) << std::endl;
             tabu.printSolutionTabu();
             util3.printElapsedTimeMilliseconds();
-            util3.saveResults("../results/resultsTabu_" + std::to_string(mat.getSize()) + "x" + std::to_string(mat.getSize()) + ".csv", 
-            "tabu", mat.getSize(), util3.returnElapsedTimeMilliseconds());
+            util3.saveResultsTabuSearch("../results/resultsTabu_" + std::to_string(mat.getSize()) + "x" + std::to_string(mat.getSize()) + ".csv", 
+            "tabu", mat.getSize(), util3.returnElapsedTimeMilliseconds(), tabu.getBestCost());
+            std::cout<<"Best cost: "<<tabu.getBestCost()<<std::endl;
         }
     }
 }

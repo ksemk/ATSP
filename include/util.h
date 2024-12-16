@@ -70,6 +70,7 @@ public:
      * @param time The elapsed time for the operation.
      */
     void saveResults(std::string resultPath, std::string algoName, int problemSize, float time);
+    void saveResultsTabuSearch(std::string resultPath, std::string algoName, int problemSize, float time, int bestCost);
 
 private:
     std::chrono::time_point<std::chrono::high_resolution_clock> start; ///< Start time of the operation.

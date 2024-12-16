@@ -17,6 +17,8 @@ public:
 
     const int* runTabuSearch();  // Run the Tabu Search and return the best solution
     void printSolutionTabu() const;  // Print the best solution found
+    const int* getBestPath() const;  // Get the best path found
+    int getBestCost() const;  // Get the cost of the best path found
 
 private:
     const Matrix& matrix;

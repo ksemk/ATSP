@@ -53,13 +53,6 @@ if (file.is_open()) {
     }
 }
 
-
-    // // Check if there was any mismatch in the number of rows read
-    // if (row != size) {
-    //     throw std::runtime_error("Error: Matrix size mismatch, expected " + std::to_string(size) + " rows, but got " + std::to_string(row) + " rows.");
-    // }
-
-    // Close the file after reading
     file.close();
 }
 

@@ -100,8 +100,23 @@ const int* TabuSearch::runTabuSearch() {
         // Explore neighbors using swap method
         for (int i = 1; i < size; i++) {  // Start from index 1 to avoid swapping the start city
             for (int j = i + 1; j < size; j++) {
-                if (isTabu(i, j)) continue;  // Skip tabu moves
+                // Check tabu status
+                if (isTabu(i, j)) {
+                    // Apply aspiration criteria: Allow tabu move if it improves the best solution
+                    swapCities(currentPath, i, j);
+                    int neighborCost = calculateCost(currentPath);
+                    if (neighborCost < bestCost) {
+                        // Update best solution despite tabu
+                        bestNeighborCost = neighborCost;
+                        bestSwap[0] = i;
+                        bestSwap[1] = j;
+                        bestCost = neighborCost;  // Update the global best cost
+                    }
+                    swapCities(currentPath, i, j);  // Undo the swap
+                    continue;  // Skip to next move
+                }
 
+                // Normal non-tabu evaluation
                 swapCities(currentPath, i, j);
                 int neighborCost = calculateCost(currentPath);
                 if (neighborCost < bestNeighborCost) {
@@ -112,6 +127,7 @@ const int* TabuSearch::runTabuSearch() {
                 swapCities(currentPath, i, j);  // Undo the swap
             }
         }
+
 
         if (bestSwap[0] != -1 && bestSwap[1] != -1) {
             // Apply the best swap
@@ -130,6 +146,14 @@ const int* TabuSearch::runTabuSearch() {
     }
 
     return bestPath;
+}
+
+const int* TabuSearch::getBestPath() const {
+    return bestPath;
+}
+
+int TabuSearch::getBestCost() const {
+    return bestCost;
 }
 
 void TabuSearch::printSolutionTabu() const {
