@@ -1,7 +1,7 @@
 {
     "configurations": {
         "isMatrixRandom": false,
-        "inputFilePath": "data/TSPLib_ATSP/ft53.atsp",
+        "inputFilePath": "data/TSPLib_ATSP/ftv70.atsp",
         "outputFilePath": "results/results.csv",
         "matrixGeneration": {
             "initial_size": 5,
@@ -14,10 +14,10 @@
             "asymRangeMax": 5
         },
         "tabuSearch": {
-            "maxIterations": 100000000,
-            "tabuSize": 10
+            "maxIterations": 100000,
+            "tabuSize": 53
         },
-        "numSamples": 1,
+        "numSamples": 50,
         "doBNB": false,
         "doBF": false,
         "doTabu": true
