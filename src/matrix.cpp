@@ -1,5 +1,4 @@
 #include "../include/matrix.h"
-#include <algorithm>
 
 Matrix::Matrix(int s) : size(s), data(nullptr) {
     // Allocate memory for a size x size matrix
