@@ -1,8 +1,8 @@
-# PEA – Projekt nr 1
+# Algorytmy do rozwiązywania asymetrycznego problemu Komiwojadżera (ATSP)
 
 ## Zadanie PR1: Implementacja i analiza efektywności algorytmu podziału i ograniczeń oraz programowania dynamicznego
 
-W ramach projektu należy zaimplementować oraz dokonać analizy efektywności algorytmu **podziału i ograniczeń (B&B)** i/lub **programowania dynamicznego (DP)** dla **asymetrycznego problemu komiwojażera (ATSP)**.
+W ramach projektu należy zaimplementować oraz dokonać analizy efektywności algorytmu **brutalnej śiły (BruteForce) oraz podziału i ograniczeń (B&B)** dla **asymetrycznego problemu komiwojażera (ATSP)**.
 
 ### Założenia:
 
