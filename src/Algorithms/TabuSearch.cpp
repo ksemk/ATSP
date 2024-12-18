@@ -74,6 +74,9 @@ void TabuSearch::updateTabuList(int i, int j) {
 }
 
 void TabuSearch::swapCities(int* path, int i, int j) {
+    if (i == 0 || i == size || j == 0 || j == size) {
+        return;  // Do not swap the start or end positions
+    }
     int temp = path[i];
     path[i] = path[j];
     path[j] = temp;
