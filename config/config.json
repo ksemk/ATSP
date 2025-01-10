@@ -1,7 +1,7 @@
 {
     "configurations": {
         "isMatrixRandom": false,
-        "inputFilePath": "data/PEA_test/tsp_10c.txt",
+        "inputFilePath": "data/TSPLib_ATSP/ftv70.atsp",
         "outputFilePath": "results/results.csv",
         "matrixGeneration": {
             "initial_size": 5,
@@ -15,11 +15,12 @@
         },
         "tabuSearch": {
             "maxIterations": 100000,
-            "tabuSize": 7
+            "tabuSize": 55
         },
         "numSamples": 1,
         "doBNB": false,
         "doBF": false,
-        "doTabu": true
+        "doTabu": true,
+        "doGA": false
     }
 }

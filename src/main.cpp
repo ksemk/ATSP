@@ -57,14 +57,6 @@ int main() {
                 util2.printElapsedTimeMilliseconds();
             }
             if (doTabu){
-                // TabuSearch tabu(mat, tabuSize, maxIterations);
-                // Util util3;
-                // util3.getStartTime();
-                // tabu.runTabuSearch();
-                // util3.getEndTime();
-                // std::cout << "Tabu Search algorithm completed for sample " << file_name << std::endl;
-                // tabu.printSolutionTabu();
-                // util3.printElapsedTimeMilliseconds();
                 runMultipleAlgorithms(numSamples, mat);
             }
         }
@@ -122,7 +114,6 @@ void runMultipleAlgorithms(int numSamples, Matrix& mat) {
             util3.printElapsedTimeMilliseconds();
             util3.saveResultsTabuSearch("../results/resultsTabu_" + std::to_string(mat.getSize()) + "x" + std::to_string(mat.getSize()) + ".csv", 
             "tabu", mat.getSize(), util3.returnElapsedTimeMilliseconds(), tabu.getBestCost());
-            std::cout<<"Best cost: "<<tabu.getBestCost()<<std::endl;
         }
     }
 }
@@ -161,11 +152,3 @@ void readConfig(const nlohmann::json& config_json) {
         exit(1);
     }
 }
-
-
-
-// TODO: wyniki są zwracalne w wynikach funkcji
-// TODO: oszacowanie błędu do tabelki
-// TODO: tabele wyników w csv
-// TODO: parametry z konfiguracji
-// TODO: korelacja czasu wykonania oraz rozmiar błędu

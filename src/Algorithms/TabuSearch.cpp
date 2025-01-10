@@ -45,7 +45,7 @@ TabuSearch::~TabuSearch() {
 }
 
 void TabuSearch::initializeTabuList() {
-    std::cout<< "Iteration number: "<< maxIterations << std::endl;
+    std::cout<< "Iterations number: "<< maxIterations << std::endl;
     std::cout<< "Tabu List Size: "<< tabuListSize << std::endl;
     tabuList = new int*[tabuListSize];
     for (int i = 0; i < tabuListSize; i++) {
