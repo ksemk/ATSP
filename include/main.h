@@ -5,6 +5,7 @@
 #include "Algorithms/BranchAndBound.h"
 #include "Algorithms/BruteForce.h"
 #include "Algorithms/TabuSearch.h"
+#include "Algorithms\GeneticAlgo.h"
 #include "matrix.h"
 #include "node.h"
 

@@ -2,11 +2,11 @@
     "geneticAlgorithmConfiguration": {
         "crossingSegmentSize": 5,
         "mutationSegmentSize": 3,
-        "mutationType": "inversion",
+        "mutationType": "i",
         "populationSize": 100,
-        "iterationNum": 1000,
-        "mutationRate": 0.05,
-        "randomRate": 0.1
+        "iterationNum": 10,
+        "mutationRate": 5,
+        "randomRate": 1
     } 
 }
  

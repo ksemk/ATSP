@@ -2,9 +2,9 @@
 
 // Global variables
 int numSamples;
-bool isRandom, doBNB, doBF, doTabu;
+bool isRandom, doBNB, doBF, doTabu, doGA;
 int initial_size, final_size, minValue, maxValue, symmetricity, asymRangeMin, asymRangeMax, step, tabuSize, maxIterations;
-std::string input_path;
+std::string input_path, GAPath;
 
 int main() {
 
@@ -57,6 +57,9 @@ int main() {
                 util2.printElapsedTimeMilliseconds();
             }
             if (doTabu){
+                runMultipleAlgorithms(numSamples, mat);
+            }
+            if (doGA){
                 runMultipleAlgorithms(numSamples, mat);
             }
         }
@@ -115,6 +118,19 @@ void runMultipleAlgorithms(int numSamples, Matrix& mat) {
             util3.saveResultsTabuSearch("../results/resultsTabu_" + std::to_string(mat.getSize()) + "x" + std::to_string(mat.getSize()) + ".csv", 
             "tabu", mat.getSize(), util3.returnElapsedTimeMilliseconds(), tabu.getBestCost());
         }
+        if(doGA){
+            GeneticAlgorithm ga(mat, GAPath);
+            Util util4;
+            util4.getStartTime();
+            ga.runGeneticAlgorithm();
+            util4.getEndTime();
+            std::cout << "Genetic algorithm completed for sample " << (i + 1) << std::endl;
+            ga.printSolution();
+            util4.printElapsedTimeMilliseconds();
+            util4.saveResultsGA("../results/resultsGA_" + std::to_string(mat.getSize()) + "x" + std::to_string(mat.getSize()) + ".csv", 
+            "ga", mat.getSize(), util4.returnElapsedTimeMilliseconds(), ga.getBestSolution(), ga.getPopulationSize(),
+            ga.getMutationRate(), ga.getCrossOverRate());
+        }
     }
 }
 
@@ -129,6 +145,8 @@ void readConfig(const nlohmann::json& config_json) {
         doTabu = config_json.at("configurations").at("doTabu").get<bool>();
         tabuSize = config_json.at("configurations").at("tabuSearch").at("tabuSize").get<int>();
         maxIterations = config_json.at("configurations").at("tabuSearch").at("maxIterations").get<int>();
+        doGA = config_json.at("configurations").at("doGA").get<bool>();
+        GAPath = config_json.at("configurations").at("GA").at("GAPath").get<std::string>();
 
         // Conditional parsing based on whether the matrix is random or loaded from a file
         if (isRandom) {
