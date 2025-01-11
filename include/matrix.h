@@ -1,7 +1,6 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include <vector>
 #include <string>
 #include <stdexcept>
 #include <iostream>
@@ -20,7 +19,7 @@
 class Matrix {
 private:
     int size; ///< The size of the matrix (number of rows/columns).
-    std::vector<std::vector<int>> data; ///< The 2D vector to store matrix data.
+    int* data; ///< Pointer to the matrix data (flat 1D array to simulate a 2D matrix).
 
 public:
     /**
@@ -29,13 +28,6 @@ public:
      * @param s The size of the matrix.
      */
     Matrix(int s);
-
-    /**
-     * @brief Constructor to initialize the matrix with a given 2D vector.
-     * 
-     * @param data The 2D vector to initialize the matrix with.
-     */
-    Matrix(const std::vector<std::vector<int>>& data);
 
     /**
      * @brief Destructor to clear the matrix data.
@@ -81,6 +73,24 @@ public:
      * @brief Function to display the matrix.
      */
     void display() const;
+
+    /**
+     * @brief Function to access elements (row, col) in the matrix.
+     * 
+     * @param row The row index.
+     * @param col The column index.
+     * @return The matrix element at (row, col).
+     */
+    int& at(int row, int col);
+
+    /**
+     * @brief Function to access elements (row, col) in the matrix (const version).
+     * 
+     * @param row The row index.
+     * @param col The column index.
+     * @return The matrix element at (row, col).
+     */
+    const int& at(int row, int col) const;
 };
 
 #endif // MATRIX_H

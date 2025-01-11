@@ -1,0 +1,12 @@
+{
+    "geneticAlgorithmConfiguration": {
+        "crossingSegmentSize": 5,
+        "mutationSegmentSize": 3,
+        "mutationType": "i",
+        "populationSize": 100,
+        "iterationNum": 10,
+        "mutationRate": 5,
+        "randomRate": 1
+    } 
+}
+ 

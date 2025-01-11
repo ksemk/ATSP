@@ -40,3 +40,21 @@ void Util::saveResults(std::string resultPath, std::string algoName, int problem
     file << algoName << "," << problemSize << "," << time << std::endl;
     file.close();
 }
+
+// Function to save the results to a file
+void Util::saveResultsTabuSearch(std::string resultPath, std::string algoName, int problemSize, float time, int bestCost) {
+    std::ofstream file(resultPath, std::ios::app);
+    if (!file) {
+        throw std::runtime_error("Could not open file");
+    }
+    file << algoName << "," << problemSize << "," << time << "," << bestCost << std::endl;
+    file.close();
+}
+void Util::saveResultsGA(std::string resultPath, std::string algoName, int problemSize, float time, int bestCost, int populationSize, float mutationRate, float crossoverRate) {
+    std::ofstream file(resultPath, std::ios::app);
+    if (!file) {
+        throw std::runtime_error("Could not open file");
+    }
+    file << algoName << "," << problemSize << "," << time << "," << bestCost << "," << populationSize << "," << mutationRate << "," << crossoverRate << std::endl;
+    file.close();
+}

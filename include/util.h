@@ -10,9 +10,11 @@
 #ifndef UTIL_H
 #define UTIL_H
 
-#include "Algorithms/DynamicProgramming.h"
 #include "Algorithms/BranchAndBound.h"
 #include "Algorithms/BruteForce.h"
+#include "Algorithms/TabuSearch.h"
+#include "Algorithms/GeneticAlgo.h"
+
 
 #include <chrono>
 #include <iostream>
@@ -70,6 +72,8 @@ public:
      * @param time The elapsed time for the operation.
      */
     void saveResults(std::string resultPath, std::string algoName, int problemSize, float time);
+    void saveResultsTabuSearch(std::string resultPath, std::string algoName, int problemSize, float time, int bestCost);
+    void saveResultsGA(std::string resultPath, std::string algoName, int problemSize, float time, int bestCost, int populationSize,  float mutationRate, float crossoverRate);
 
 private:
     std::chrono::time_point<std::chrono::high_resolution_clock> start; ///< Start time of the operation.

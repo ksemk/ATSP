@@ -1,9 +1,34 @@
 #include "../../include/Algorithms/BruteForce.h"
+#include <iostream>
+#include <climits> // For INT_MAX
+#include <cstring> // For std::memcpy
 
-// Function to calculate the cost of a given path
+BruteForce::BruteForce(const Matrix& matrix)
+    : matrix(matrix), n(matrix.getSize()), bestCost(INT_MAX) {
+    // Allocate memory for bestPath and currentPath
+    bestPath = new int[n];
+    currentPath = new int[n];
+
+    // Initialize paths
+    for (int i = 0; i < n; ++i) {
+        bestPath[i] = -1;
+        currentPath[i] = i; // Start with the default city order
+    }
+}
+
+BruteForce::~BruteForce() {
+    delete[] bestPath;
+    delete[] currentPath;
+}
+
+void BruteForce::swap(int& a, int& b) {
+    int temp = a;
+    a = b;
+    b = temp;
+}
+
 int BruteForce::calculatePathCost(const Node& node) const {
     int cost = 0;
-    int n = matrix.getSize();
     for (int i = 0; i < n - 1; ++i) {
         cost += matrix.getCost(node.path[i], node.path[i + 1]);
     }
@@ -11,40 +36,40 @@ int BruteForce::calculatePathCost(const Node& node) const {
     return cost;
 }
 
-// Function to generate all permutations of the path and calculate the cost
-void BruteForce::generatePermutations(Node& node, int left, int right) {
-    if (left == right) {
-        int currentCost = calculatePathCost(node);
+void BruteForce::generatePermutations(int depth) {
+    if (depth == n) {
+        // Calculate the cost of the current permutation
+        int currentCost = 0;
+        for (int i = 0; i < n - 1; ++i) {
+            currentCost += matrix.getCost(currentPath[i], currentPath[i + 1]);
+        }
+        currentCost += matrix.getCost(currentPath[n - 1], currentPath[0]);
+
+        // Update the best cost and path if needed
         if (currentCost < bestCost) {
             bestCost = currentCost;
-            bestPath = node.path;
+            std::memcpy(bestPath, currentPath, n * sizeof(int));
         }
     } else {
-        for (int i = left; i <= right; ++i) {
-            std::swap(node.path[left], node.path[i]);
-            generatePermutations(node, left + 1, right);
-            std::swap(node.path[left], node.path[i]); // backtrack
+        for (int i = depth; i < n; ++i) {
+            swap(currentPath[depth], currentPath[i]);
+            generatePermutations(depth + 1);
+            swap(currentPath[depth], currentPath[i]); // Backtrack
         }
     }
 }
 
-// Function to run the brute force algorithm
 void BruteForce::runBruteForce() {
-    int n = matrix.getSize();
-    Node node(n);
-    for (int i = 0; i < n; ++i) {
-        node.path[i] = i;
-    }
-    generatePermutations(node, 0, n - 1);
+    // Generate all permutations of the cities and find the best path
+    generatePermutations(0);
 }
 
-// Function to print the best solution found
 void BruteForce::printSolution() const {
-    std::cout << "\nMinimum cost bf: " << bestCost << std::endl;
-        std::cout << "Best path bnb: ";
-    for (int city : bestPath) {
-        std::cout << city << " ";
+    std::cout << "\nMinimum cost (Brute Force): " << bestCost << std::endl;
+    std::cout << "Best path (Brute Force): ";
+    for (int i = 0; i < n; ++i) {
+        std::cout << bestPath[i] << " ";
     }
-    std::cout << "0";  // Return to the start city
+    std::cout << bestPath[0];  // Return to the start city
     std::cout << std::endl;
 }
