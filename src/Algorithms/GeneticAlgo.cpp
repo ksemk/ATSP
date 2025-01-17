@@ -12,22 +12,22 @@ GeneticAlgorithm::GeneticAlgorithm(const Matrix& matrix, std::string geneticConf
       geneticConfigFilePath(std::move(geneticConfigFilePath)), // Use std::move for efficiency
       populationSize(0),                 // Initialize with a sensible default
       iterationNum(0),
-      crossingSegmentSize(0),
-      mutationSegmentSize(0),
+      crossingSegmentSizeRate(0),
+      mutationSegmentSizeRate(0),
       mutationType('i'),                 // Default to 'i' for inversion
       mutationRate(0),
-      randomRate(0) {
+      randomRate(0),
+      randomRateNewGen(0) {
     // Construct the full path to the config file
     std::string fullPath = this->geneticConfigFilePath;
 
     //Debugging
-    std::cout << "Full path to config file: " << fullPath << std::endl;
+    // std::cout << "Full path to config file: " << fullPath << std::endl;
 
     // Read the config file
     std::ifstream config_file(fullPath);
     if (!config_file.is_open()) {
-    std::cerr << "Error opening file: " << strerror(errno) << std::endl;
-    throw std::runtime_error("Could not open config file for ga");
+        throw std::runtime_error("Could not open config file: " + fullPath);
     }
 
     // Parse the config file as JSON
@@ -38,16 +38,29 @@ GeneticAlgorithm::GeneticAlgorithm(const Matrix& matrix, std::string geneticConf
     // Initial population generation
     population = new int*[populationSize];
     offspringPopulation = new int*[populationSize];
-    int chromosomeLength = matrix.getSize() - 1; // Exclude the 0th city for TSP
+    int chromosomeLength = matrix.getSize() - 1; // Exclude the 0th city for ATSP
 
-    for (int i = 0; i < populationSize; ++i) {
-        population[i] = generateChromosome(chromosomeLength);
-        offspringPopulation[i] = new int[chromosomeLength];
+    try {
+        for (int i = 0; i < populationSize; ++i) {
+            population[i] = generateChromosome(chromosomeLength);
+            offspringPopulation[i] = new int[chromosomeLength];
+        }
+    } catch (...) {
+        // Clean up allocated memory in case of an exception
+        for (int i = 0; i < populationSize; ++i) {
+            delete[] population[i];
+            delete[] offspringPopulation[i];
+        }
+        delete[] population;
+        delete[] offspringPopulation;
+        throw; // Re-throw the exception
     }
 }
 
+
 // Destructor
 GeneticAlgorithm::~GeneticAlgorithm() {
+    // std::cout << "Destroying GeneticAlgorithm object" << std::endl;
     for (int i = 0; i < populationSize; ++i) {
         delete[] population[i];
         delete[] offspringPopulation[i];
@@ -56,12 +69,13 @@ GeneticAlgorithm::~GeneticAlgorithm() {
     delete[] offspringPopulation;
 }
 
-// Generate initial population
-void GeneticAlgorithm::generatePopulation(int populationSize, int chromosomeLength) {
-    for (int i = 0; i < populationSize; ++i) {
-        population[i] = generateChromosome(chromosomeLength);
-    }
-}
+// // Generate initial population
+// void GeneticAlgorithm::generatePopulation(int populationSize, int chromosomeLength) {
+//     for (int i = 0; i < populationSize; ++i) {
+//         std::cout<<"Chromosome nr: " << i << std::endl;
+//         population[i] = generateChromosome(chromosomeLength);
+//     }
+// }
 
 // Generate a single chromosome
 int* GeneticAlgorithm::generateChromosome(int chromosomeLength) {
@@ -87,8 +101,18 @@ int* GeneticAlgorithm::generateChromosome(int chromosomeLength) {
         std::swap(chromosome[i], chromosome[j]);
     }
 
+    // debugging
+    // for (int i = 0; i < chromosomeLength; ++i) {
+    //     std::cout << chromosome[i] << " ";
+    // }
+    // std::cout << std::endl;
+
+
     return chromosome;
 }
+
+
+int diversityThreshold = 0; // At least 30% difference
 
 // Generate offspring with mutation and crossing
 void GeneticAlgorithm::generateOffspring(int chromosomeLength) {
@@ -111,27 +135,72 @@ void GeneticAlgorithm::generateOffspring(int chromosomeLength) {
 
         // Apply mutation
         if (mutationType == 'i') {
-            performInversionMutation(offspringIndex, chromosomeLength, mutationSegmentSize);
+            performInversionMutation(offspringIndex, chromosomeLength, mutationSegmentSizeRate);
         } else if (mutationType == 's') {
-            performShuffleMutation(offspringIndex, chromosomeLength, mutationSegmentSize);
+            performShuffleMutation(offspringIndex, chromosomeLength, mutationSegmentSizeRate);
         }
     }
 
-    // Perform crossover
+    // Perform crossover with diversification mechanism
     for (; offspringIndex < populationSize; offspringIndex += 2) {
         int parent1 = rand() % populationSize;
-        int parent2 = rand() % populationSize;
+        int parent2;
+        int retries = 0;
+        const int maxRetries = 10;
 
-        performCrossing(parent1, parent2, offspringIndex, chromosomeLength, crossingSegmentSize);
+        // Ensure parent2 is diverse from parent1
+        do {
+            parent2 = rand() % populationSize;
+            retries++;
+        } while (calculateDiversity(population[parent1], population[parent2], chromosomeLength) < diversityThreshold && retries < maxRetries);
+
+        // Diversification mechanism if retries exceed limit
+        if (retries >= maxRetries) {
+            if (rand() % 2 == 0) {
+                // Randomly generate a new chromosome as parent2
+                parent2 = offspringIndex; // Use a new random chromosome
+                offspringPopulation[parent2] = generateChromosome(chromosomeLength);
+            } else {
+                // Apply mutation to an existing chromosome to create diversity
+                parent2 = rand() % populationSize;
+                offspringPopulation[parent2] = new int[chromosomeLength];
+                for (int i = 0; i < chromosomeLength; ++i) {
+                    offspringPopulation[parent2][i] = population[parent2][i];
+                }
+                performInversionMutation(parent2, chromosomeLength, mutationSegmentSizeRate);
+            }
+        }
+
+        performCrossing(parent1, parent2, offspringIndex, chromosomeLength, crossingSegmentSizeRate);
     }
 }
 
 
+int GeneticAlgorithm::calculateDiversity(int* chromosome1, int* chromosome2, int length) {
+    int diversity = 0;
+    for (int i = 0; i < length; ++i) {
+        if (chromosome1[i] != chromosome2[i]) {
+            diversity++;
+        }
+    }
+    return diversity;
+}
+
+
+
 // Perform inversion mutation
-void GeneticAlgorithm::performInversionMutation(int currentChromosome, int chromosomeLength, int mutationSegmentSize) {
+void GeneticAlgorithm::performInversionMutation(int currentChromosome, int chromosomeLength, int mutationSegmentSizeRate) {
+    // Calculate the actual segment size based on the mutationSegmentSizeRate rate (1 to 100)
+    int segmentSize = (mutationSegmentSizeRate * chromosomeLength) / 100;
+
+    // Ensure the segment size is at least 1
+    if (segmentSize < 1) {
+        segmentSize = 1;
+    }
+
     // Choose the start and end indices of the inversion segment
-    int start = rand() % (chromosomeLength - mutationSegmentSize + 1);
-    int end = start + mutationSegmentSize - 1;
+    int start = rand() % (chromosomeLength - segmentSize + 1);
+    int end = start + segmentSize - 1;
 
     // Perform the inversion
     while (start < end) {
@@ -145,13 +214,21 @@ void GeneticAlgorithm::performInversionMutation(int currentChromosome, int chrom
 
 
 // Perform shuffle mutation
-void GeneticAlgorithm::performShuffleMutation(int currentChromosome, int chromosomeLength, int mutationSegmentSize) {
+void GeneticAlgorithm::performShuffleMutation(int currentChromosome, int chromosomeLength, int mutationSegmentSizeRate) {
+    // Calculate the actual segment size based on the mutationSegmentSizeRate rate (1 to 100)
+    int segmentSize = (mutationSegmentSizeRate * chromosomeLength) / 100;
+
+    // Ensure the segment size is at least 1
+    if (segmentSize < 1) {
+        segmentSize = 1;
+    }
+
     // Choose the start index for the shuffle
-    int start = rand() % (chromosomeLength - mutationSegmentSize + 1);
+    int start = rand() % (chromosomeLength - segmentSize + 1);
 
     // Perform Fisher-Yates shuffle within the segment
-    for (int i = 0; i < mutationSegmentSize - 1; ++i) {
-        int randomIndex = start + (rand() % (mutationSegmentSize - i));
+    for (int i = 0; i < segmentSize - 1; ++i) {
+        int randomIndex = start + (rand() % (segmentSize - i));
         int currentIndex = start + i;
 
         // Swap the elements
@@ -163,7 +240,35 @@ void GeneticAlgorithm::performShuffleMutation(int currentChromosome, int chromos
 
 
 // Perform crossing
-void GeneticAlgorithm::performCrossing(int parent1, int parent2, int offspringIndex, int chromosomeLength, int crossingSegmentSize) {
+void GeneticAlgorithm::performCrossing(int parent1, int parent2, int offspringIndex, int chromosomeLength, int crossingSegmentSizeRate) {
+    int retries = 0;
+    const int maxRetries = 10; // Maximum retries to ensure diversity
+    const double diversityThreshold = chromosomeLength * 0.3; // At least 30% diversity
+
+    // Ensure parents are diverse enough
+    while (calculateDiversity(population[parent1], population[parent2], chromosomeLength) < diversityThreshold && retries < maxRetries) {
+        parent2 = rand() % populationSize; // Select a new random parent2
+        retries++;
+    }
+
+    // Diversification mechanism: If retries exceed limit
+    if (retries >= maxRetries) {
+        if (rand() % 2 == 0) {
+            // Option 1: Replace parent2 with a new random chromosome
+            parent2 = offspringIndex;
+            offspringPopulation[parent2] = generateChromosome(chromosomeLength);
+        } else {
+            // Option 2: Apply mutation to ensure diversity
+            parent2 = rand() % populationSize;
+            int* mutatedChromosome = new int[chromosomeLength];
+            for (int i = 0; i < chromosomeLength; ++i) {
+                mutatedChromosome[i] = population[parent2][i];
+            }
+            performInversionMutation(parent2, chromosomeLength, mutationSegmentSizeRate);
+            population[parent2] = mutatedChromosome;
+        }
+    }
+
     // Allocate memory for two offspring
     offspringPopulation[offspringIndex] = new int[chromosomeLength];
     offspringPopulation[offspringIndex + 1] = new int[chromosomeLength];
@@ -172,9 +277,17 @@ void GeneticAlgorithm::performCrossing(int parent1, int parent2, int offspringIn
     bool* used1 = new bool[chromosomeLength + 1](); // For offspring 1
     bool* used2 = new bool[chromosomeLength + 1](); // For offspring 2
 
+    // Calculate the actual segment size based on the crossingSegmentSizeRate rate (1 to 100)
+    int segmentSize = (crossingSegmentSizeRate * chromosomeLength) / 100;
+
+    // Ensure the segment size is at least 1
+    if (segmentSize < 1) {
+        segmentSize = 1;
+    }
+
     // Choose random segment for crossover
-    int start = rand() % (chromosomeLength - crossingSegmentSize + 1);
-    int end = start + crossingSegmentSize;
+    int start = rand() % (chromosomeLength - segmentSize + 1);
+    int end = start + segmentSize;
 
     // Copy the segment from parents to offspring
     for (int i = start; i < end; ++i) {
@@ -214,6 +327,17 @@ void GeneticAlgorithm::performCrossing(int parent1, int parent2, int offspringIn
     delete[] used2;
 }
 
+void swap(int*& a, int*& b) {
+    int* temp = a;
+    a = b;
+    b = temp;
+}
+
+void swap(int& a, int& b) {
+    int temp = a;
+    a = b;
+    b = temp;
+}
 
 void GeneticAlgorithm::selection(int chromosomeLength) {
     // Combine population and offspring
@@ -234,16 +358,32 @@ void GeneticAlgorithm::selection(int chromosomeLength) {
     for (int i = 0; i < totalSize - 1; ++i) {
         for (int j = i + 1; j < totalSize; ++j) {
             if (fitnessScores[i] > fitnessScores[j]) {
-                std::swap(fitnessScores[i], fitnessScores[j]);
-                std::swap(combinedPopulation[i], combinedPopulation[j]);
+                swap(fitnessScores[i], fitnessScores[j]); // Use custom swap for integers
+                swap(combinedPopulation[i], combinedPopulation[j]); // Use custom swap for pointers
             }
         }
     }
 
+    // Calculate the number of chromosomes to replace for diversity
+    int numDiverseChromosomes = (populationSize * randomRateNewGen) / 100;
+
     // Select top chromosomes for the next generation
-    for (int i = 0; i < populationSize; ++i) {
+    for (int i = 0; i < populationSize - numDiverseChromosomes; ++i) {
         for (int j = 0; j < chromosomeLength; ++j) {
             population[i][j] = combinedPopulation[i][j];
+        }
+    }
+
+    // Introduce diversity by picking from the lower half of the sorted population
+    int startIndex = populationSize; // Start picking from the offspring
+    for (int i = populationSize - numDiverseChromosomes; i < populationSize; ++i) {
+        int randomIndex = startIndex + (rand() % (totalSize - startIndex)); // Pick from the lower-ranked half
+        delete[] population[i]; // Clean up old chromosome
+        population[i] = new int[chromosomeLength];
+
+        // Copy the randomly picked chromosome
+        for (int j = 0; j < chromosomeLength; ++j) {
+            population[i][j] = combinedPopulation[randomIndex][j];
         }
     }
 
@@ -253,26 +393,27 @@ void GeneticAlgorithm::selection(int chromosomeLength) {
 }
 
 
+
 void GeneticAlgorithm::parseParametersFromJSON(const nlohmann::json& config_json) {
     try {
         // Validate and parse the configuration
         const auto& config = config_json.at("geneticAlgorithmConfiguration");
 
-        // Validate and parse crossingSegmentSize
-        if (config.contains("crossingSegmentSize") && config["crossingSegmentSize"].is_number_integer()) {
-            crossingSegmentSize = config.at("crossingSegmentSize").get<int>();
-            if (crossingSegmentSize >= matrix.getSize()) {
-                throw std::runtime_error("'crossingSegmentSize' must be less than the size of the matrix.");
-            }
+        // Validate and parse crossingSegmentSizeRate
+        if (config.contains("crossingSegmentSizeRate") && config["crossingSegmentSizeRate"].is_number_integer()) {
+            crossingSegmentSizeRate = config.at("crossingSegmentSizeRate").get<int>();
+            // if (crossingSegmentSizeRate >= matrix.getSize()) {
+            //     throw std::runtime_error("'crossingSegmentSizeRate' must be less than the size of the matrix.");
+            // }
         } else {
-            throw std::runtime_error("Invalid or missing 'crossingSegmentSize' in configuration.");
+            throw std::runtime_error("Invalid or missing 'crossingSegmentSizeRate' in configuration.");
         }
 
-        // Validate and parse mutationSegmentSize
-        if (config.contains("mutationSegmentSize") && config["mutationSegmentSize"].is_number_integer()) {
-            mutationSegmentSize = config.at("mutationSegmentSize").get<int>();
+        // Validate and parse mutationSegmentSizeRate
+        if (config.contains("mutationSegmentSizeRate") && config["mutationSegmentSizeRate"].is_number_integer()) {
+            mutationSegmentSizeRate = config.at("mutationSegmentSizeRate").get<int>();
         } else {
-            throw std::runtime_error("Invalid or missing 'mutationSegmentSize' in configuration.");
+            throw std::runtime_error("Invalid or missing 'mutationSegmentSizeRate' in configuration.");
         }
 
         // Validate and parse mutationType (as a char)
@@ -333,6 +474,16 @@ void GeneticAlgorithm::parseParametersFromJSON(const nlohmann::json& config_json
         if (mutationRate + randomRate >= 100) {
             throw std::runtime_error("The sum of 'mutationRate' and 'randomRate' must be less than 100.");
         }
+
+        // Validate and parse randomRateNewGen
+        if (config.contains("randomRateNewGen") && config["randomRateNewGen"].is_number_integer()) {
+            randomRateNewGen = config.at("randomRateNewGen").get<int>();
+            if (randomRateNewGen < 0 || randomRateNewGen > 100) {
+            throw std::runtime_error("'randomRateNewGen' must be between 0 and 100.");
+            }
+        } else {
+            throw std::runtime_error("Invalid or missing 'randomRateNewGen' in configuration.");
+        }
     } catch (const nlohmann::json::exception& e) {
         std::cerr << "Error parsing genetic algorithm configuration: " << e.what() << std::endl;
         throw;
@@ -370,85 +521,35 @@ void GeneticAlgorithm::runGeneticAlgorithm() {
 
     for (int iteration = 0; iteration < iterationNum; ++iteration) {
         // Step 1: Generate offspring
-        for (int i = 0; i < populationSize; ++i) {
-            if (i < populationSize * randomRate / 100) {
-                // Random chromosome generation
-                for (int j = 0; j < problemSize - 1; ++j) {
-                    offspringPopulation[i][j] = rand() % (problemSize - 1) + 1;
-                }
-            } else if (i < populationSize * (randomRate + mutationRate) / 100) {
-                // Perform mutation
-                if (mutationType == 'i') {
-                    performInversionMutation(i, problemSize - 1, mutationSegmentSize);
-                } else if (mutationType == 's') {
-                    performShuffleMutation(i, problemSize - 1, mutationSegmentSize);
-                }
-            } else {
-                // Perform crossing
-                int parentOneIdx = rand() % populationSize;
-                int parentTwoIdx = rand() % populationSize;
-                performCrossing(parentOneIdx, parentTwoIdx, i, problemSize - 1, crossingSegmentSize);
-            }
-        }
+        generateOffspring(problemSize - 1);
 
-        // Step 2: Combine population and offspring
-        int combinedSize = 2 * populationSize;
-        int** combinedPopulation = new int*[combinedSize];
-        int* combinedCosts = new int[combinedSize];
-        for (int i = 0; i < populationSize; ++i) {
-            combinedPopulation[i] = population[i];
-            combinedCosts[i] = calculatePathCost(population[i]);
-        }
-        for (int i = 0; i < populationSize; ++i) {
-            combinedPopulation[populationSize + i] = offspringPopulation[i];
-            combinedCosts[populationSize + i] = calculatePathCost(offspringPopulation[i]);
-        }
-
-        // Step 3: Select the best chromosomes
-        for (int i = 0; i < combinedSize - 1; ++i) {
-            for (int j = i + 1; j < combinedSize; ++j) {
-                if (combinedCosts[j] < combinedCosts[i]) {
-                    std::swap(combinedCosts[i], combinedCosts[j]);
-                    std::swap(combinedPopulation[i], combinedPopulation[j]);
-                }
-            }
-        }
-
-        // Step 4: Update the population with the best chromosomes
-        for (int i = 0; i < populationSize; ++i) {
-            population[i] = combinedPopulation[i];
-        }
+        // Step 2: Combine population and offspring and select the best chromosomes
+        selection(problemSize - 1);
 
         // Track the best solution
-        if (combinedCosts[0] < bestCost) {
-            bestCost = combinedCosts[0];
+        int currentBestCost = calculatePathCost(population[0]);
+        if (currentBestCost < bestCost) {
+            bestCost = currentBestCost;
             if (bestPath) {
                 delete[] bestPath;
             }
             bestPath = new int[problemSize - 1];
             for (int i = 0; i < problemSize - 1; ++i) {
-                bestPath[i] = combinedPopulation[0][i];
+                bestPath[i] = population[0][i];
             }
         }
 
-        // Free the memory of combined populations after selection
-        for (int i = populationSize; i < combinedSize; ++i) {
-            delete[] combinedPopulation[i];
-        }
-        delete[] combinedPopulation;
-        delete[] combinedCosts;
-
-        std::cout << "Iteration " << iteration + 1 << ": Best cost = " << bestCost << std::endl;
+        // std::cout << "Iteration " << iteration + 1 << ": Best cost = " << bestCost << std::endl;
     }
 
-    // Output the best solution
-    std::cout << "Best solution found:" << std::endl;
-    std::cout << "Path: 0 ";
-    for (int i = 0; i < problemSize - 1; ++i) {
-        std::cout << bestPath[i] << " ";
-    }
-    std::cout << "0" << std::endl;
-    std::cout << "Cost: " << bestCost << std::endl;
+    // // Output the best solution
+    // std::cout << "Best solution found:" << std::endl;
+    // std::cout << "Path: 0 ";
+    // for (int i = 0; i < problemSize - 1; ++i) {
+    //     std::cout << bestPath[i] << " ";
+    // }
+    // std::cout << "0" << std::endl;
+    // std::cout << "Cost: " << bestCost << std::endl;
 
     // Free memory for best path
     if (bestPath) {
@@ -459,7 +560,7 @@ void GeneticAlgorithm::runGeneticAlgorithm() {
 
 int* GeneticAlgorithm::getBestPath() {
     // Allocate memory for the best path
-    int* bestPath = new int[problemSize];
+    int* bestPath = new int[problemSize + 1];
 
     // Ensure problem size is sufficient to form a valid path
     if (problemSize < 3) {
@@ -470,10 +571,10 @@ int* GeneticAlgorithm::getBestPath() {
 
     // Add the starting city (0) to the beginning and end of the path
     bestPath[0] = 0; // Starting city
-    for (int i = 1; i < problemSize - 1; ++i) {
+    for (int i = 1; i <= problemSize - 1; ++i) {
         bestPath[i] = population[0][i - 1]; // Fill from the best chromosome in the population
     }
-    bestPath[problemSize - 1] = 0; // Return to the starting city
+    bestPath[problemSize] = 0; // Return to the starting city
 
 
     return bestPath; // Return the dynamically allocated best path
@@ -500,7 +601,29 @@ int GeneticAlgorithm::getPopulationSize()
 {
     return populationSize;
 }
+int GeneticAlgorithm::getRandomRate() {
+    return randomRate;
+}
 
+int GeneticAlgorithm::getCrossingSegmentSizeRate() {
+    return crossingSegmentSizeRate;
+}
+
+int GeneticAlgorithm::getMutationSegmentSizeRate() {
+    return mutationSegmentSizeRate;
+}
+
+char GeneticAlgorithm::getMutationType() {
+    return mutationType;
+}
+
+int GeneticAlgorithm::getIterationNum() {
+    return iterationNum;
+}
+
+int GeneticAlgorithm::getRandomRateNewGen() {
+    return randomRateNewGen;
+}
 
 void GeneticAlgorithm::printSolution() {
     int* bestPath = getBestPath();
@@ -513,13 +636,18 @@ void GeneticAlgorithm::printSolution() {
 
     std::cout << "Best solution found:" << std::endl;
     std::cout << "Path: ";
-    for (int i = 0; i < problemSize; ++i) {
+    for (int i = 0; i <= problemSize; ++i) { // Iterate over problemSize + 1 to include the return to 0
         std::cout << bestPath[i] << " ";
     }
     std::cout << std::endl;
-    std::cout << "Cost: " << bestCost << std::endl;
 
-    delete[] bestPath;
+    if (bestCost < 0) { // Optional: Check for invalid cost values
+        std::cerr << "Error: Invalid cost value retrieved." << std::endl;
+    } else {
+        std::cout << "Cost: " << bestCost << std::endl;
+    }
+
+    delete[] bestPath; // Free the dynamically allocated memory
 }
 
 

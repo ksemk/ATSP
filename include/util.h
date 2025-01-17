@@ -73,7 +73,7 @@ public:
      */
     void saveResults(std::string resultPath, std::string algoName, int problemSize, float time);
     void saveResultsTabuSearch(std::string resultPath, std::string algoName, int problemSize, float time, int bestCost);
-    void saveResultsGA(std::string resultPath, std::string algoName, int problemSize, float time, int bestCost, int populationSize,  float mutationRate, float crossoverRate);
+    void saveResultsGA(std::string resultPath, std::string algoName, int problemSize, float time, int bestCost, int populationSize, float mutationRate, float crossoverRate, char mutationType, float randomRateNewGen, int iterationNum, float crossingSegmentSizeRate, float mutationSegmentSizeRate,  float randomRate);
 
 private:
     std::chrono::time_point<std::chrono::high_resolution_clock> start; ///< Start time of the operation.
