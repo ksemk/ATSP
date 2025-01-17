@@ -1,12 +1,12 @@
 {
     "geneticAlgorithmConfiguration": {
-        "crossingSegmentSize": 5,
-        "mutationSegmentSize": 3,
-        "mutationType": "i",
-        "populationSize": 100,
-        "iterationNum": 10,
-        "mutationRate": 5,
-        "randomRate": 1
-    } 
+        "crossingSegmentSizeRate": 40, 
+        "mutationSegmentSizeRate":40,   
+        "mutationType": "s",     
+        "populationSize": 2000,    
+        "iterationNum": 2000,  
+        "mutationRate": 20,         
+        "randomRate": 30,
+        "randomRateNewGen": 20         
+    }
 }
- 

@@ -127,9 +127,10 @@ void runMultipleAlgorithms(int numSamples, Matrix& mat) {
             std::cout << "Genetic algorithm completed for sample " << (i + 1) << std::endl;
             ga.printSolution();
             util4.printElapsedTimeMilliseconds();
-            util4.saveResultsGA("../results/resultsGA_" + std::to_string(mat.getSize()) + "x" + std::to_string(mat.getSize()) + ".csv", 
+            util4.saveResultsGA("../results/results_mut_type_bigger/resultsGA_" + std::to_string(mat.getSize()) + "x" + std::to_string(mat.getSize()) + ".csv", 
             "ga", mat.getSize(), util4.returnElapsedTimeMilliseconds(), ga.getBestSolution(), ga.getPopulationSize(),
-            ga.getMutationRate(), ga.getCrossOverRate());
+            ga.getMutationRate(), ga.getCrossOverRate(), ga.getMutationType(), ga.getRandomRateNewGen(), ga.getIterationNum(),
+            ga.getCrossingSegmentSizeRate(), ga.getMutationSegmentSizeRate(), ga.getRandomRate());
         }
     }
 }
