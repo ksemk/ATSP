@@ -539,7 +539,7 @@ void GeneticAlgorithm::runGeneticAlgorithm() {
             }
         }
 
-        // std::cout << "Iteration " << iteration + 1 << ": Best cost = " << bestCost << std::endl;
+        std::cout << "Iteration " << iteration + 1 << ": Best cost = " << bestCost << std::endl;
     }
 
     // // Output the best solution

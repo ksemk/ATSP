@@ -3,8 +3,8 @@
         "crossingSegmentSizeRate": 40, 
         "mutationSegmentSizeRate":40,   
         "mutationType": "s",     
-        "populationSize": 2000,    
-        "iterationNum": 2000,  
+        "populationSize": 1000,    
+        "iterationNum": 20,  
         "mutationRate": 20,         
         "randomRate": 30,
         "randomRateNewGen": 20         
