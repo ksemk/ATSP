@@ -1,7 +1,7 @@
 {
     "configurations": {
         "isMatrixRandom": false,
-        "inputFilePath": "data/TSPLib_ATSP/ry48p.atsp",
+        "inputFilePath": "data/PEA_test/tsp_10a.txt",
         "outputFilePath": "results/results.csv",
         "matrixGeneration": {
             "initial_size": 5,
