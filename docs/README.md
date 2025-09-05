@@ -24,7 +24,7 @@ Robust C++ implementation of multiple algorithms for the Asymmetric Traveling Sa
 - `include/` — core types (`matrix.h`, `node.h`, `util.h`)
 - `config/` — config files and docs (`config.json`, `ga_config.json`, `config_documentation.md`)
 - `data/` — input instances (TSPLIB and test sets)
-- `results/`, `raport/` — experiment outputs, plots, and PDF reports
+- `raports/` — PDF reports
 - `python/` — plotting and GA exploration scripts
 
 ## Algorithms implemented
@@ -91,12 +91,7 @@ Output images are in `python/` and `raport/`.
 
 ## Results (high level)
 
-Selected artifacts (see `raport/` and `results/` for more):
-
-- Branch and Bound performance: `raport/branch_and_bound_performance_log.png`
-- Brute Force performance: `raport/brute_force_performance_log.png`
-- Combined performance: `raport/combined_performance.png`
-- Tabu/GA result tables and additional plots in `raport/` and `results/`
+Selected artifacts (see `raports/` for more):
 
 These demonstrate the expected scaling: BF grows factorially and is only feasible for small N; BnB improves exact solving via pruning; Tabu and GA scale to larger N with near-optimal solutions.
 
